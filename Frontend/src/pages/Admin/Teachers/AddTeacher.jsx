@@ -6,7 +6,7 @@ import TeacherForm from "../../../components/Admin/Teacher/TeacherForm";
 import { createTeacher } from "../../../services/teacherService";
 
 const AddTeacher = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -113,6 +113,7 @@ const handleSubmit = async (e) => {
               loading={loading}
               showPassword={true}
               submitText="Add Teacher"
+              onCancel={() => navigate("/admin/teachers")}
             />
 
           </div>

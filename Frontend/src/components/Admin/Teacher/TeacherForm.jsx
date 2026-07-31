@@ -9,7 +9,10 @@ const TeacherForm = ({
   submitText = "Save Changes",
   readOnly = false,
   showPassword = false,
+  onCancel,
 }) => {
+
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Personal Information */}
@@ -142,6 +145,7 @@ const TeacherForm = ({
                 name="department"
                 value={formData.department}
                 onChange={handleChange}
+                className="w-full border rounded-xl px-4 py-3"
             >
                 <option value="">Select Department</option>
                 <option>Computer Science</option>
@@ -283,12 +287,13 @@ const TeacherForm = ({
 
       {!readOnly && (
         <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            className="px-6 py-3 rounded-xl border border-slate-300 hover:bg-slate-100"
-          >
-            Cancel
-          </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-3 rounded-xl border border-slate-300 hover:bg-slate-100"
+        >
+          Cancel
+        </button>
 
           <button
             type="submit"

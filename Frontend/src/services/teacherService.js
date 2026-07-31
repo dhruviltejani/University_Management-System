@@ -77,13 +77,14 @@ export const deleteTeacher = async (id) => {
 
 
 // ====================
-// Add Teacher
+// ADD TEACHER
 // ====================
 
 export const createTeacher = async (teacherData) => {
-  const response = await api.post(
-    "/admin/teachers",
-    teacherData
+  const response = await axios.post(
+    API,
+    teacherData,
+    getAuthConfig()
   );
 
   return response.data;

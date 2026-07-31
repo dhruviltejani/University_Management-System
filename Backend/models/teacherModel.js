@@ -313,13 +313,12 @@ const createTeacher = async (teacherData) => {
         department,
         designation,
         qualification,
-        specialization,
         experience_years,
         joining_date,
         office_room
       )
       VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      ($1,$2,$3,$4,$5,$6,$7,$8)
       RETURNING *
       `,
       [
@@ -328,7 +327,6 @@ const createTeacher = async (teacherData) => {
         department,
         designation,
         qualification,
-        specialization,
         experience_years,
         joining_date,
         office_room,
@@ -339,13 +337,28 @@ const createTeacher = async (teacherData) => {
 
     return teacherResult.rows[0];
 
-  } catch (error) {
+  } 
 
-    await client.query("ROLLBACK");
+  catch (error) {
+  console.error("Error:", error);
+  console.error("Response:", error.response);
+  console.error("Data:", error.response?.data);
 
-    throw error;
+  alert(
+    error.response?.data?.message ||
+    "Failed to create teacher."
+  );
+}
+  
+  // catch (error) {
 
-  } finally {
+  //   await client.query("ROLLBACK");
+
+  //   throw error;
+
+  // } 
+  
+  finally {
 
     client.release();
 

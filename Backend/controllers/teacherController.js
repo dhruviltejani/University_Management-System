@@ -99,7 +99,6 @@ const createTeacher = async (req, res) => {
       department,
       designation,
       qualification,
-      specialization,
       experience_years,
       joining_date,
       office_room,
@@ -116,7 +115,6 @@ const createTeacher = async (req, res) => {
       !department ||
       !designation ||
       !qualification ||
-      !specialization ||
       experience_years === undefined ||
       !joining_date ||
       !office_room
@@ -137,7 +135,6 @@ const createTeacher = async (req, res) => {
       department,
       designation,
       qualification,
-      specialization,
       experience_years,
       joining_date,
       office_room,

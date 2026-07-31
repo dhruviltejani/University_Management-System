@@ -159,8 +159,9 @@ useEffect(() => {
               handleChange={handleChange}
               handleSubmit={handleSubmit}
               loading={loading}
-              showPassword={False}
+              showPassword={false}
               submitText="save Changes"
+              onCancel={() => navigate("/admin/teachers")}
             />
 
           </div>
