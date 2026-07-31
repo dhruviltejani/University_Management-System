@@ -1,0 +1,4 @@
+In Admin/Teacher/Edit :
+
+1)The cancel button doesnothing.
+2)Cannot keep experience 0 yrs .
