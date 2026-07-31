@@ -4,10 +4,10 @@ import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
 import Sidebar from "../../../components/Admin/sidebar";
 import ConfirmDeleteModal from "../../../components/Common/ConfirmDeleteModal";
 import { useState, useEffect } from "react";
+import TeacherDetailsModal from "../../../components/Admin/Teacher/TeacherDetailsModal";
 import { getTeachers , deleteTeacher} from "../../../services/teacherService";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
-
 
 const Teachers = () => {
 const [department, setDepartment] = useState("");
@@ -22,6 +22,9 @@ const [totalPages, setTotalPages] = useState(1);
 const [totalRecords, setTotalRecords] = useState(0);
 const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [selectedTeacher, setSelectedTeacher] = useState(null);
+const [showModal, setShowModal] = useState(false);
+
+
 
 useEffect(() => {
   // setPage(1);
@@ -38,6 +41,18 @@ useEffect(() => {
 useEffect(() => {
   setPage(1);
 }, [search, department, designation, status]);
+
+const handleViewTeacher = (teacher) => {
+  console.log("View clicked:", teacher);
+
+  setSelectedTeacher(teacher);
+  setShowModal(true);
+};
+
+// const handleViewTeacher = (teacher) => {
+//   setSelectedTeacher(teacher);
+//   setShowModal(true);
+// };
 
 const fetchTeachers = async () => {
   try {
@@ -150,14 +165,12 @@ const handleDelete = async () => {
             setPage={setPage}
             totalPages={totalPages}
             onDelete={openDeleteModal}
+            onView={handleViewTeacher}
         />
         
-        <ConfirmDeleteModal
+<ConfirmDeleteModal
   isOpen={deleteModalOpen}
-  title="Delete Teacher"
-  message={`Are you sure you want to delete "${
-    selectedTeacher?.full_name || ""
-  }"?`}
+  teacher={selectedTeacher}
   loading={loading}
   onCancel={() => {
     setDeleteModalOpen(false);
@@ -166,7 +179,12 @@ const handleDelete = async () => {
   onConfirm={handleDelete}
 />
 
-
+{showModal && (
+  <TeacherDetailsModal
+    teacher={selectedTeacher}
+    onClose={() => setShowModal(false)}
+  />
+)}
 
       </main>
 

@@ -169,7 +169,7 @@ const updateTeacher = async (req, res) => {
         message: "Teacher ID is required.",
       });
     }
-
+    
     const teacher = await Teacher.getTeacherById(id);
 
     if (!teacher) {

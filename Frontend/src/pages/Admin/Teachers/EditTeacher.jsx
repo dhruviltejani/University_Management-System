@@ -22,6 +22,7 @@ const EditTeacher = () => {
     designation: "",
     qualification: "",
     specialization: "",
+    gender:"",
     experience_years: "",
     joining_date: "",
     office_room: "",
@@ -64,6 +65,7 @@ const handleSubmit = async (e) => {
     setLoading(true);
 
     const response = await getTeacherById(id);
+    console.log(response.data); //delete this after testing
 
     setFormData({
       full_name: response.data.full_name || "",
@@ -78,6 +80,7 @@ const handleSubmit = async (e) => {
       designation: response.data.designation || "",
       qualification: response.data.qualification || "",
       specialization: response.data.specialization || "",
+      gender: response.data.gender || "",
       experience_years:
         response.data.experience_years || "",
       joining_date: response.data.joining_date

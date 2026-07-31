@@ -63,12 +63,12 @@ const getAllTeachers = async (
       u.email,
       u.contact_no,
       u.dob,
-
       t.employee_id,
       t.department,
       t.designation,
       t.qualification,
       t.specialization,
+      t.gender,
       t.experience_years,
       t.joining_date,
       t.office_room,
@@ -120,6 +120,7 @@ const getTeacherById = async (id) => {
       t.designation,
       t.qualification,
       t.specialization,
+      t.gender,
       t.experience_years,
       t.joining_date,
       t.office_room,
@@ -151,6 +152,7 @@ const updateTeacher = async (id, data) => {
     designation,
     qualification,
     specialization,
+    gender,
     experience_years,
     joining_date,
     office_room,
@@ -185,12 +187,13 @@ const updateTeacher = async (id, data) => {
       designation = $3,
       qualification = $4,
       specialization = $5,
-      experience_years = $6,
-      joining_date = $7,
-      office_room = $8,
-      status = $9
+      gender = $6,
+      experience_years = $7,
+      joining_date = $8,
+      office_room = $9,
+      status = $10
 
-    WHERE user_id = $10
+    WHERE user_id = $11
 
     RETURNING *
     `,
@@ -200,6 +203,7 @@ const updateTeacher = async (id, data) => {
       designation,
       qualification,
       specialization,
+      gender,
       experience_years,
       joining_date,
       office_room,
@@ -262,6 +266,7 @@ const createTeacher = async (teacherData) => {
       email,
       dob,
       contact_no,
+      gender,
       password,
       employee_id,
       department,
@@ -313,12 +318,14 @@ const createTeacher = async (teacherData) => {
         department,
         designation,
         qualification,
+        specialization,
         experience_years,
         joining_date,
-        office_room
+        office_room,
+        gender
       )
       VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8)
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING *
       `,
       [
@@ -327,9 +334,11 @@ const createTeacher = async (teacherData) => {
         department,
         designation,
         qualification,
+        specialization,
         experience_years,
         joining_date,
         office_room,
+        gender,
       ]
     );
 
@@ -338,26 +347,10 @@ const createTeacher = async (teacherData) => {
     return teacherResult.rows[0];
 
   } 
-
-  catch (error) {
-  console.error("Error:", error);
-  console.error("Response:", error.response);
-  console.error("Data:", error.response?.data);
-
-  alert(
-    error.response?.data?.message ||
-    "Failed to create teacher."
-  );
-}
-  
-  // catch (error) {
-
-  //   await client.query("ROLLBACK");
-
-  //   throw error;
-
-  // } 
-  
+ catch (error) {
+  await client.query("ROLLBACK");
+  throw error;
+ }
   finally {
 
     client.release();

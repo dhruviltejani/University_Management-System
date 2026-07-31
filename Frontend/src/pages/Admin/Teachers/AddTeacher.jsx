@@ -19,6 +19,7 @@ const AddTeacher = () => {
     designation: "",
     qualification: "",
     specialization: "",
+    gender:"",
     experience_years: "",
     joining_date: "",
     office_room: "",

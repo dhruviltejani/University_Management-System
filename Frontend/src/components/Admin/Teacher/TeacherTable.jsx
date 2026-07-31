@@ -22,7 +22,7 @@ const badgeColor = (status) => {
   }
 };
 
-const TeacherTable = ({ teachers = [], loading = false , page ,  setPage,  totalPages , onDelete}) => {
+const TeacherTable = ({ teachers = [], loading = false , page ,  setPage,  totalPages , onDelete , onView}) => {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow-sm p-10 text-center">
@@ -157,9 +157,12 @@ const TeacherTable = ({ teachers = [], loading = false , page ,  setPage,  total
                     {/* Actions */}
                     <td className="px-6 py-5">
                       <div className="flex justify-center gap-2">
-                        <button className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600 transition">
-                          <Eye size={18} />
-                        </button>
+                      <button
+                        onClick={() => onView(teacher)}
+                        className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600 transition"
+                      >
+                        <Eye size={18} />
+                      </button>
 
                         <button
         onClick={() =>
