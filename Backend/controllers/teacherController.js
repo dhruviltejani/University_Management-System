@@ -86,6 +86,29 @@ const getTeacherById = async (req, res) => {
 };
 
 
+// ==========================
+// GET TEACHER STATS
+// GET /api/admin/teachers/stats
+// ==========================
+const getTeacherStats = async (req, res) => {
+  try {
+    const stats = await Teacher.getTeacherStats();
+
+    res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    console.error("Error fetching teacher stats:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch teacher statistics.",
+      error: error.message,
+    });
+  }
+};
+
 // Create teacher
 const createTeacher = async (req, res) => {
   try {
@@ -244,6 +267,7 @@ const deleteTeacher = async (req, res) => {
 module.exports = {
   getAllTeachers,
   getTeacherById,
+  getTeacherStats,
   createTeacher,
   updateTeacher,
   deleteTeacher,

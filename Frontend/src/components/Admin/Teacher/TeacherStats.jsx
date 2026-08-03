@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getTeacherStats } from "../../../services/teacherService";
 import {
   UserCheck,
   Users,
@@ -6,20 +7,43 @@ import {
   Clock3,
 } from "lucide-react";
 
-const stats = [
+
+const TeacherStats = () => {
+    const [stats, setStats] = useState({
+    total_teachers: 0,
+    active_teachers: 0,
+    departments: 0,
+    on_leave: 0,
+  });
+
+  useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const response = await getTeacherStats();
+
+      setStats(response.data);
+    } catch (error) {
+      console.error("Failed to fetch teacher stats:", error);
+    }
+  };
+
+  fetchStats();
+}, []);
+
+const statsData = [
   {
     title: "Total Teachers",
-    value: "86",
-    change: "+4 this month",
+    value: stats.total_teachers,
+    change: "Overall",
     icon: Users,
     bg: "bg-indigo-50",
     text: "text-indigo-600",
-    badge: "bg-emerald-50 text-emerald-600",
+    badge: "bg-indigo-100 text-indigo-700",
   },
   {
     title: "Active Teachers",
-    value: "82",
-    change: "95%",
+    value: stats.active_teachers,
+    change: "Currently Active",
     icon: UserCheck,
     bg: "bg-green-50",
     text: "text-green-600",
@@ -27,7 +51,7 @@ const stats = [
   },
   {
     title: "Departments",
-    value: "8",
+    value: stats.departments,
     change: "Available",
     icon: Building2,
     bg: "bg-purple-50",
@@ -36,8 +60,8 @@ const stats = [
   },
   {
     title: "On Leave",
-    value: "3",
-    change: "Today",
+    value: stats.on_leave,
+    change: "Current",
     icon: Clock3,
     bg: "bg-orange-50",
     text: "text-orange-600",
@@ -45,10 +69,9 @@ const stats = [
   },
 ];
 
-const TeacherStats = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-      {stats.map((item, index) => {
+      {statsData.map((item, index) => {
         const Icon = item.icon;
 
         return (

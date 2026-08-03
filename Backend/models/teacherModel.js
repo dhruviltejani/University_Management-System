@@ -358,10 +358,36 @@ const createTeacher = async (teacherData) => {
   }
 };
 
+const getTeacherStats = async () => {
+  const result = await pool.query(`
+    SELECT
+      COUNT(*) AS total_teachers,
+
+      COUNT(*) FILTER (
+        WHERE t.status = 'Active'
+      ) AS active_teachers,
+
+      COUNT(*) FILTER (
+        WHERE t.status = 'On Leave'
+      ) AS on_leave,
+
+      COUNT(DISTINCT t.department) AS departments
+
+    FROM teachers t
+    JOIN users u
+      ON u.id = t.user_id
+
+    WHERE u.role = 'teacher'
+  `);
+
+  return result.rows[0];
+};
+
 module.exports = {
   getAllTeachers,
   getTeacherById,
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  getTeacherStats,
 };

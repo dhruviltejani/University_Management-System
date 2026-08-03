@@ -39,6 +39,18 @@ export const getTeachers = async (
 };
 
 // ==========================
+// GET TEACHER STATS
+// ==========================
+export const getTeacherStats = async () => {
+  const response = await axios.get(
+    `${API}/stats`,
+    getAuthConfig()
+  );
+
+  return response.data;
+};
+
+// ==========================
 // GET TEACHER BY ID
 // ==========================
 export const getTeacherById = async (id) => {
@@ -62,6 +74,7 @@ export const updateTeacher = async (id, data) => {
 
   return response.data;
 };
+
 
 // ==========================
 // DELETE TEACHER
