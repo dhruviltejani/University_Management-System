@@ -130,20 +130,40 @@ const handleDelete = async () => {
       <Sidebar />
 
       <main className="ml-56 flex-1 h-screen overflow-y-auto p-8 space-y-6">
-<div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
 
-  <div>
-    <h1 className="text-2xl font-bold text-slate-900">
-      Teacher Management
-    </h1>
+        {/* Left Side */}
+        <div>
+          <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+            Admin Dashboard
+          </span>
 
-    <p className="text-slate-500 mt-1">
-      Manage faculty members, departments and professional information.
-    </p>
-  </div>
+          <h1 className="mt-3 text-3xl font-bold text-slate-900">
+            Teacher Management
+          </h1>
 
+          <p className="mt-2 max-w-2xl text-slate-500">
+            Manage faculty members, departments, qualifications, and professional
+            information from a single dashboard.
+          </p>
+        </div>
 
-</div>
+        {/* Right Side */}
+        <div className="flex items-center gap-4">
+
+          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+            <p className="text-xs uppercase tracking-wide text-slate-400">
+              Total Teachers
+            </p>
+
+            <p className="mt-1 text-3xl font-bold text-slate-900">
+              {totalRecords}
+            </p>
+          </div>
+
+        </div>
+
+      </div>
         <TeacherStats />
 
       <TeacherFilters

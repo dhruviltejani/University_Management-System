@@ -150,9 +150,26 @@ const TeacherDetailsModal = ({ teacher, onClose }) => {
       value={teacher.department}
     />
 
+      <InfoCard
+      label="Qualification"
+      value={teacher.qualification}
+    />
+
+      <InfoCard
+      label="Specialization"
+      value={teacher.specialization}
+    />
+
     <InfoCard
       label="Designation"
       value={teacher.designation}
+    />
+
+
+
+      <InfoCard
+      label="Office Room"
+      value={teacher.office_room}
     />
 
   </div>

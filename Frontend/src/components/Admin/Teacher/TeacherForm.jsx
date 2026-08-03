@@ -186,6 +186,22 @@ const TeacherForm = ({
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
+              Specialization
+            </label>
+
+            <input
+              type="text"
+              name="specialization"
+              value={formData.specialization}
+              onChange={handleChange}
+              readOnly={readOnly}
+              placeholder="e.g. Artificial Intelligence"
+              className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Experience (Years)
             </label>
             <input
