@@ -16,7 +16,7 @@ const authenticateToken = require("../middleware/authMiddleware");
 // Get all teachers
 router.get("/",authenticateToken,getAllTeachers);
 
-router.get("/stats", getTeacherStats);
+router.get("/stats",authenticateToken, getTeacherStats);
 
 // Get one teacher
 router.get("/:id",authenticateToken,getTeacherById);

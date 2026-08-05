@@ -10,7 +10,9 @@ import AdminDashboard from "./pages/Admin/Dashboard";
 import Teachers from "./pages/Admin/Teachers/Teachers";
 import AddTeacher from "./pages/Admin/Teachers/AddTeacher";
 import EditTeacher from "./pages/Admin/Teachers/EditTeacher"
-
+import Departments from "./pages/Admin/Departments/Departments";
+import AddDepartment from "./pages/Admin/Departments/AddDepartment";
+import EditDepartment from "./pages/Admin/Departments/EditDepartment";
 
 function App() {
   return (
@@ -49,6 +51,11 @@ function App() {
           <Route path="/admin/teachers/edit/:id" element={<EditTeacher />} />
           <Route path="/admin/teachers/add"element={<ProtectedRoute><AddTeacher /></ProtectedRoute>}/>
           
+          <Route path="/admin/departments" element={<Departments />}/>
+          <Route path="/admin/departments/add" element={<AddDepartment />}/>
+          <Route path="/admin/departments/edit/:id" element={<EditDepartment />}/>
+
+
       </Routes>
 
     </BrowserRouter>

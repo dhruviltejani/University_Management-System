@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/admin/teachers";
+const API = "http://localhost:5000/api/admin/departments";
 
 const getAuthConfig = () => {
   const token = localStorage.getItem("token");
@@ -13,22 +13,18 @@ const getAuthConfig = () => {
 };
 
 // ==========================
-// GET ALL TEACHERS
+// GET ALL DEPARTMENTS
 // ==========================
-export const getTeachers = async (
+export const getDepartments = async (
   search = "",
-  department = "",
-  designation = "",
   status = "",
-  page=1,
+  page = 1,
   limit = 10
 ) => {
   const response = await axios.get(API, {
     ...getAuthConfig(),
     params: {
       search,
-      department,
-      designation,
       status,
       page,
       limit,
@@ -39,21 +35,9 @@ export const getTeachers = async (
 };
 
 // ==========================
-// GET TEACHER STATS
+// GET DEPARTMENT BY ID
 // ==========================
-export const getTeacherStats = async () => {
-  const response = await axios.get(
-    `${API}/stats`,
-    getAuthConfig()
-  );
-
-  return response.data;
-};
-
-// ==========================
-// GET TEACHER BY ID
-// ==========================
-export const getTeacherById = async (id) => {
+export const getDepartmentById = async (id) => {
   const response = await axios.get(
     `${API}/${id}`,
     getAuthConfig()
@@ -63,9 +47,22 @@ export const getTeacherById = async (id) => {
 };
 
 // ==========================
-// UPDATE TEACHER
+// CREATE DEPARTMENT
 // ==========================
-export const updateTeacher = async (id, data) => {
+export const createDepartment = async (departmentData) => {
+  const response = await axios.post(
+    API,
+    departmentData,
+    getAuthConfig()
+  );
+
+  return response.data;
+};
+
+// ==========================
+// UPDATE DEPARTMENT
+// ==========================
+export const updateDepartment = async (id, data) => {
   const response = await axios.put(
     `${API}/${id}`,
     data,
@@ -76,9 +73,9 @@ export const updateTeacher = async (id, data) => {
 };
 
 // ==========================
-// DELETE TEACHER
+// DELETE DEPARTMENT
 // ==========================
-export const deleteTeacher = async (id) => {
+export const deleteDepartment = async (id) => {
   const response = await axios.delete(
     `${API}/${id}`,
     getAuthConfig()
@@ -87,15 +84,12 @@ export const deleteTeacher = async (id) => {
   return response.data;
 };
 
-
-// ====================
-// ADD TEACHER
-// ====================
-
-export const createTeacher = async (teacherData) => {
-  const response = await axios.post(
-    API,
-    teacherData,
+// ==========================
+// GET DEPARTMENT STATS
+// ==========================
+export const getDepartmentStats = async () => {
+  const response = await axios.get(
+    `${API}/stats`,
     getAuthConfig()
   );
 
