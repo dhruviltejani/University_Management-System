@@ -23,7 +23,7 @@ const DepartmentFilters = ({search , setSearch , status , setStatus , resetFilte
 
         <input
           type="text"
-          placeholder="Search by department name, code, or HOD..."
+          placeholder="Search by department name, code..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-sm"
