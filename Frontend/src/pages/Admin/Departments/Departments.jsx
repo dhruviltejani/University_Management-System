@@ -23,6 +23,7 @@ const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [selectedDepartment, setSelectedDepartment] = useState(null);
 const [showModal, setShowModal] = useState(false);
 const [deleteLoading, setDeleteLoading] = useState(false);
+const [totalRecords, setTotalRecords] = useState(0);
 
 useEffect(() => {
   // setPage(1);
