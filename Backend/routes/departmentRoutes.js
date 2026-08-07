@@ -10,34 +10,34 @@ const {
   getDepartmentStats,
 } = require("../controllers/departmentController");
 
-const authenticateToken = require("../middleware/authMiddleware");
+const {verifyToken , isAdmin} = require("../middleware/authMiddleware");
 // ==========================
 // GET ALL DEPARTMENTS
 // ==========================
-router.get("/",authenticateToken,getAllDepartments);
+router.get("/",verifyToken ,isAdmin ,getAllDepartments);
 
 // ==========================
 // GET DEPARTMENT STATS
 // ==========================
-router.get("/stats", authenticateToken, getDepartmentStats);
+router.get("/stats",verifyToken , isAdmin , getDepartmentStats);
 
 // ==========================
 // GET DEPARTMENT BY ID
 // ==========================
-router.get("/:id", authenticateToken, getDepartmentById);
+router.get("/:id", verifyToken , isAdmin , getDepartmentById);
 
 // ==========================
 // CREATE DEPARTMENT
 // ==========================
-router.post("/", authenticateToken, createDepartment);
+router.post("/", verifyToken , isAdmin , createDepartment);
 
 // ==========================
 // UPDATE DEPARTMENT
 // ==========================
-router.put("/:id", authenticateToken, updateDepartment);
+router.put("/:id", verifyToken , isAdmin , updateDepartment);
 
 // ==========================
 // DELETE DEPARTMENT
 // ==========================
-router.delete("/:id", authenticateToken, deleteDepartment);
+router.delete("/:id", verifyToken , isAdmin , deleteDepartment);
 module.exports = router;

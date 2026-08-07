@@ -1,14 +1,14 @@
 import DepartmentStats from "../../../components/Admin/Department/DepartmentStats";
 import DepartmentFilters from "../../../components/Admin/Department/DepartmentFilters";
 import DepartmentTable from "../../../components/Admin/Department/DepartmentTable";
-import DepartmentDetailsModal from "../../../components/Admin/Department/DepartmentDetailsModal";
-import DeleteDepartmentModal from "../../../components/Common/DeleteDepartmentModal";
+import { DetailsModal } from "../../../components/Common/DetailsModal";
+import { departmentDetailsConfig } from "../../../config/departmentDetailsConfig";
+import { deleteDepartmentConfig } from "../../../config/deleteDepartmentConfig";
+import { DeleteModal } from "../../../components/Common/DeleteModal";
 
 import Sidebar from "../../../components/Admin/sidebar";
 import { useState, useEffect } from "react";
 import { getDepartments , deleteDepartment , } from "../../../services/departmentService";
-
-
 
 const Departments = () => {
 
@@ -159,9 +159,10 @@ Manage university departments, HODs, office details and departmental information
             onView={handleViewDepartment}
         />
         
-        <DeleteDepartmentModal
+        <DeleteModal
           isOpen={deleteModalOpen}
-          department={selectedDepartment}
+          data={selectedDepartment}
+          config={deleteDepartmentConfig}
           loading={deleteLoading}
           onCancel={() => {
             setDeleteModalOpen(false);
@@ -171,12 +172,14 @@ Manage university departments, HODs, office details and departmental information
         />
 
 {showModal && (
-  <DepartmentDetailsModal
-    department={selectedDepartment}
+  <DetailsModal
+    isOpen={showModal}
+    config={departmentDetailsConfig}
+    data={selectedDepartment}
     onClose={() => {
-  setShowModal(false);
-  setSelectedDepartment(null);
-}}
+      setShowModal(false);
+      setSelectedDepartment(null);
+    }}
   />
 )}
 

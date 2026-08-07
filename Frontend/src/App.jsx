@@ -13,6 +13,9 @@ import EditTeacher from "./pages/Admin/Teachers/EditTeacher"
 import Departments from "./pages/Admin/Departments/Departments";
 import AddDepartment from "./pages/Admin/Departments/AddDepartment";
 import EditDepartment from "./pages/Admin/Departments/EditDepartment";
+import Students from "./pages/Admin/Student/Students";
+import AddStudent from "./pages/Admin/Student/AddStudent";
+import EditStudent from "./pages/Admin/Student/EditStudent";
 
 function App() {
   return (
@@ -29,17 +32,10 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         
-        <Route
-          path="/reset-password/:token" element={<ResetPassword />}/>
+        <Route path="/reset-password/:token" element={<ResetPassword />}/>
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
+
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
           <Route path="/admin/teachers" element={<Teachers />} />
@@ -55,6 +51,9 @@ function App() {
           <Route path="/admin/departments/add" element={<AddDepartment />}/>
           <Route path="/admin/departments/edit/:id" element={<EditDepartment />}/>
 
+          <Route path="/admin/students" element={<Students />} />
+          <Route path="/admin/students/add" element={<AddStudent />} />
+          <Route path="/admin/students/edit/:id" element={<EditStudent />} />
 
       </Routes>
 

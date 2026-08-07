@@ -85,7 +85,6 @@ const getTeacherById = async (req, res) => {
   }
 };
 
-
 // ==========================
 // GET TEACHER STATS
 // GET /api/admin/teachers/stats

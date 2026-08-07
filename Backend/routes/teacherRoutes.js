@@ -11,23 +11,24 @@ const {
   deleteTeacher,
 } = require("../controllers/teacherController");
 
-const authenticateToken = require("../middleware/authMiddleware");
+const {verifyToken , isAdmin} = require("../middleware/authMiddleware");
+
+// Statistics
+router.get("/stats", verifyToken, isAdmin, getTeacherStats);
 
 // Get all teachers
-router.get("/",authenticateToken,getAllTeachers);
-
-router.get("/stats",authenticateToken, getTeacherStats);
+router.get("/", verifyToken, isAdmin, getAllTeachers);
 
 // Get one teacher
-router.get("/:id",authenticateToken,getTeacherById);
+router.get("/:id", verifyToken, isAdmin, getTeacherById);
 
-// create teacher
-router.post("/", createTeacher);
+// Create teacher
+router.post("/", verifyToken, isAdmin, createTeacher);
 
 // Update teacher
-router.put("/:id",authenticateToken,updateTeacher);
+router.put("/:id", verifyToken, isAdmin, updateTeacher);
 
 // Delete teacher
-router.delete("/:id",authenticateToken,deleteTeacher);
+router.delete("/:id", verifyToken, isAdmin, deleteTeacher);
 
 module.exports = router;

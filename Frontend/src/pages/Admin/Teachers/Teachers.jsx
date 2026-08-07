@@ -2,10 +2,12 @@ import TeacherStats from "../../../components/Admin/Teacher/TeacherStats";
 import TeacherFilters from "../../../components/Admin/Teacher/TeacherFilters";
 import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
 import Sidebar from "../../../components/Admin/sidebar";
-import ConfirmDeleteModal from "../../../components/Common/ConfirmDeleteModal";
+import { DeleteModal } from "../../../components/Common/DeleteModal";
 import { useState, useEffect } from "react";
-import TeacherDetailsModal from "../../../components/Admin/Teacher/TeacherDetailsModal";
 import { getTeachers , deleteTeacher} from "../../../services/teacherService";
+import  {DetailsModal} from "../../../components/Common/DetailsModal";
+import {teacherDetailsConfig} from "../../../config/teacherDetailsConfig";
+import {deleteTeacherConfig} from "../../../config/deleteTeacherConfig";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
@@ -19,7 +21,7 @@ const [search, setSearch] = useState("");
 const [page, setPage] = useState(1);
 const [limit] = useState(10);
 const [totalPages, setTotalPages] = useState(1);
-const [totalRecords, setTotalRecords] = useState(0);
+// const [totalRecords, setTotalRecords] = useState(0);
 const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [selectedTeacher, setSelectedTeacher] = useState(null);
 const [showModal, setShowModal] = useState(false);
@@ -43,7 +45,6 @@ useEffect(() => {
 }, [search, department, designation, status]);
 
 const handleViewTeacher = (teacher) => {
-  console.log("View clicked:", teacher);
 
   setSelectedTeacher(teacher);
   setShowModal(true);
@@ -171,9 +172,10 @@ const handleDelete = async () => {
             onView={handleViewTeacher}
         />
         
-<ConfirmDeleteModal
+<DeleteModal
   isOpen={deleteModalOpen}
-  teacher={selectedTeacher}
+  data={selectedTeacher}
+  config={deleteTeacherConfig}
   loading={loading}
   onCancel={() => {
     setDeleteModalOpen(false);
@@ -183,8 +185,10 @@ const handleDelete = async () => {
 />
 
 {showModal && (
-  <TeacherDetailsModal
-    teacher={selectedTeacher}
+  <DetailsModal
+    isOpen={showModal}
+    config={teacherDetailsConfig}
+    data={selectedTeacher}
     onClose={() => setShowModal(false)}
   />
 )}
