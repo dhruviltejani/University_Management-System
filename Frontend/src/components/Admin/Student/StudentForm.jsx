@@ -11,7 +11,7 @@ const StudentForm = ({
   onCancel,
 }) => {
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form id="student-form" onSubmit={handleSubmit} className="space-y-8">
       {/* Personal Information */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-800 mb-6">
@@ -273,7 +273,7 @@ const StudentForm = ({
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 rounded-xl border border-slate-300 hover:bg-slate-100 font-medium text-slate-700"
+            className="px-6 py-3 rounded-xl border border-slate-300 hover:bg-slate-100"
           >
             Cancel
           </button>
@@ -281,7 +281,7 @@ const StudentForm = ({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-60"
+            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : submitText}
           </button>

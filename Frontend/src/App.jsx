@@ -16,6 +16,9 @@ import EditDepartment from "./pages/Admin/Departments/EditDepartment";
 import Students from "./pages/Admin/Student/Students";
 import AddStudent from "./pages/Admin/Student/AddStudent";
 import EditStudent from "./pages/Admin/Student/EditStudent";
+import Courses from "./pages/Admin/Course/Course";
+import AddCourse from "./pages/Admin/Course/AddCourse";
+import EditCourse from "./pages/Admin/Course/EditCourse";
 
 function App() {
   return (
@@ -30,33 +33,35 @@ function App() {
         <Route path="/" element={<Sign_in />} />
         
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
         
-        <Route path="/reset-password/:token" element={<ResetPassword />}/>
+        <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>}/>
 
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
 
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
 
-          <Route path="/admin/teachers" element={<Teachers />} />
+          <Route path="/admin/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
 
-          <Route path="/admin/teachers/add" element={<AddTeacher />} />
+          <Route path="/admin/teachers/add" element={<ProtectedRoute><AddTeacher /></ProtectedRoute>} />
 
           {/* <Route path="/admin/teachers/:id" element={<TeacherProfile />} /> */}
 
-          <Route path="/admin/teachers/edit/:id" element={<EditTeacher />} />
+          <Route path="/admin/teachers/edit/:id" element={<ProtectedRoute><EditTeacher /></ProtectedRoute>} />
           <Route path="/admin/teachers/add"element={<ProtectedRoute><AddTeacher /></ProtectedRoute>}/>
           
-          <Route path="/admin/departments" element={<Departments />}/>
-          <Route path="/admin/departments/add" element={<AddDepartment />}/>
-          <Route path="/admin/departments/edit/:id" element={<EditDepartment />}/>
+          <Route path="/admin/departments" element={<ProtectedRoute><Departments /></ProtectedRoute>}/>
+          <Route path="/admin/departments/add" element={<ProtectedRoute><AddDepartment /></ProtectedRoute>}/>
+          <Route path="/admin/departments/edit/:id" element={<ProtectedRoute><EditDepartment /></ProtectedRoute>}/>
 
-          <Route path="/admin/students" element={<Students />} />
-          <Route path="/admin/students/add" element={<AddStudent />} />
-          <Route path="/admin/students/edit/:id" element={<EditStudent />} />
+          <Route path="/admin/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
+          <Route path="/admin/students/add" element={<ProtectedRoute><AddStudent /></ProtectedRoute>} />
+          <Route path="/admin/students/edit/:id" element={<ProtectedRoute><EditStudent /></ProtectedRoute>} />
+
+          <Route path="/admin/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+          <Route path="/admin/courses/add" element={<ProtectedRoute><AddCourse /></ProtectedRoute>} />
+          <Route path="/admin/courses/edit/:id" element={<EditCourse />} />
 
       </Routes>
-
     </BrowserRouter>
   );
 }

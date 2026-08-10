@@ -10,14 +10,6 @@ const {
   getStudentStats,
 } = require("../controllers/studentController");
 
-console.log({
-  getAllStudents,
-  getStudentById,
-  getStudentStats,
-  createStudent,
-  updateStudent,
-  deleteStudent,
-});
 
 const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 

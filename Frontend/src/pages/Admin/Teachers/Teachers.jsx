@@ -2,14 +2,12 @@ import TeacherStats from "../../../components/Admin/Teacher/TeacherStats";
 import TeacherFilters from "../../../components/Admin/Teacher/TeacherFilters";
 import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
 import Sidebar from "../../../components/Admin/sidebar";
-import { DeleteModal } from "../../../components/Common/DeleteModal";
 import { useState, useEffect } from "react";
 import { getTeachers , deleteTeacher} from "../../../services/teacherService";
+import { DeleteModal } from "../../../components/Common/DeleteModal";
 import  {DetailsModal} from "../../../components/Common/DetailsModal";
 import {teacherDetailsConfig} from "../../../config/teacherDetailsConfig";
 import {deleteTeacherConfig} from "../../../config/deleteTeacherConfig";
-import { Link } from "react-router-dom";
-import { Plus } from "lucide-react";
 
 const Teachers = () => {
 const [department, setDepartment] = useState("");

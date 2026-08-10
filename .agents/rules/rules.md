@@ -46,10 +46,10 @@ Completed Modules
 ✔ Department Module
 ✔ Teacher Module
 ✔ Student Module (CRUD + Statistics + Search + Filters + Pagination)
+✔ Course Module (CRUD + Statistics + Search + Filters + Pagination)
 
 Pending Modules
 
-- Course Module
 - Dashboard Improvements
 - Connect all modules using Foreign Keys
 - Validation using Yup
@@ -346,10 +346,11 @@ Configuration files
 ✔ studentDetailsConfig
 ✔ teacherDetailsConfig
 ✔ departmentDetailsConfig
-- courseDetailsConfig
+✔ courseDetailsConfig
 ✔ deleteTeacherConfig
 ✔ deleteStudentConfig
 ✔ deleteDepartmentConfig
+✔ deleteCourseConfig
 
 ---
 
