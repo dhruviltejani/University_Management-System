@@ -7,7 +7,8 @@ import { deleteDepartmentConfig } from "../../../config/deleteDepartmentConfig";
 import { DeleteModal } from "../../../components/Common/DeleteModal";
 
 import Sidebar from "../../../components/Admin/sidebar";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { getDepartments , deleteDepartment , } from "../../../services/departmentService";
 
 const Departments = () => {
@@ -97,7 +98,7 @@ console.log(selectedDepartment.department_id);
       selectedDepartment.id
     );
 
-    alert(response.message);
+    toast.success(response.message);
 
     setDeleteModalOpen(false);
     setSelectedDepartment(null);
@@ -108,7 +109,7 @@ console.log(selectedDepartment.department_id);
       await fetchDepartments();
     }
   } catch (error) {
-    alert(
+    toast.error(
       error.response?.data?.message ||
       "Failed to delete department."
     );

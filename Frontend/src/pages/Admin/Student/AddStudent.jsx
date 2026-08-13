@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../../components/Admin/sidebar";
@@ -93,7 +94,7 @@ const AddStudent = () => {
 
       const response = await createStudent(formData);
 
-      alert(
+      toast.success(
         response.message ||
         "Student created successfully."
       );
@@ -103,7 +104,7 @@ const AddStudent = () => {
     } catch (error) {
       console.error("Create student error:", error);
 
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Failed to create student."
       );

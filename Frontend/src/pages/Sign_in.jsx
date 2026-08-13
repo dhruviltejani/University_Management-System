@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Mail, Lock, Eye, EyeOff, GraduationCap, UserCheck, ShieldCheck, Building2 } from 'lucide-react';
 import { Link, useNavigate } from "react-router-dom";
 import signinschema from '../Validation/signinSchema';
+import toast from 'react-hot-toast';
 
 const Sign_in = () => {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ const Sign_in = () => {
 
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      alert(response.data.message);
+      toast.success(response.data.message);
 
       // Navigate based on role or generic dashboard
 
@@ -89,7 +90,7 @@ const Sign_in = () => {
 
     } catch (error) {
       console.error(error);
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Something went wrong. Please try again."
       );

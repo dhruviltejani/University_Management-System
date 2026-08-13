@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider, redirect, Outlet } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 
 import Sign_up from "./pages/Sign_up";
 import Sign_in from "./pages/Sign_in";
@@ -58,8 +59,14 @@ const router = createBrowserRouter([
   }
 ]);
 
+
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Toaster position="top-right" />
+      <RouterProvider router={router} />
+    </>
+  );
 }
 
 export default App;

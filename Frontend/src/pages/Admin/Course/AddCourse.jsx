@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 
 import Sidebar from "../../../components/Admin/sidebar";
 import CourseForm from "../../../components/Admin/Course/CourseForm";
@@ -75,7 +76,7 @@ const AddCourse = () => {
 
       const response = await createCourse(formData);
 
-      alert(
+      toast.success(
         response.message ||
         "Course created successfully."
       );
@@ -86,7 +87,7 @@ const AddCourse = () => {
 
       console.error("Create course error:", error);
 
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Failed to create course."
       );

@@ -1,4 +1,5 @@
 import { useState , useEffect } from "react";
+import toast from 'react-hot-toast';
 import { ArrowLeft, Save, UserCircle2 } from "lucide-react";
 import { Link , useNavigate , useParams } from "react-router-dom";
 import Sidebar from "../../../components/Admin/sidebar";
@@ -73,14 +74,14 @@ const handleSubmit = async (e) => {
 
     const response = await updateTeacher(id, formData);
 
-    alert(response.message);
+    toast.success(response.message);
 
     navigate("/admin/teachers");
 
   } catch (error) {
     console.error(error);
 
-    alert("Failed to update teacher.");
+    toast.error("Failed to update teacher.");
   } finally {
     setLoading(false);
   }
@@ -125,7 +126,7 @@ const handleSubmit = async (e) => {
   console.log("Response:", error.response);
   console.log("Data:", error.response?.data);
 
-  alert(error.response?.data?.message || "Failed to update teacher.");
+  toast.error(error.response?.data?.message || "Failed to update teacher.");
 }
   finally {
     setLoading(false);

@@ -1,4 +1,5 @@
 import TeacherStats from "../../../components/Admin/Teacher/TeacherStats";
+import toast from 'react-hot-toast';
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
 import Sidebar from "../../../components/Admin/sidebar";
@@ -113,7 +114,7 @@ const handleDelete = async () => {
 
     const response = await deleteTeacher(selectedTeacher.id);
 
-    alert(response.message);
+    toast.success(response.message);
 
     setDeleteModalOpen(false);
     setSelectedTeacher(null);
@@ -127,7 +128,7 @@ const handleDelete = async () => {
   } catch (error) {
     console.error(error);
 
-    alert(
+    toast.error(
       error.response?.data?.message ||
       "Failed to delete teacher."
     );

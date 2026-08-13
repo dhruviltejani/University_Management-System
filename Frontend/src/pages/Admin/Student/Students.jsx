@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../../../components/Admin/sidebar";
 
 import StudentStats from "../../../components/Admin/Student/StudentStats";
+import toast from 'react-hot-toast';
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import StudentTable from "../../../components/Admin/Student/StudentTable";
 import { DetailsModal } from "../../../components/Common/DetailsModal";
@@ -131,7 +132,7 @@ const Students = () => {
 
       const response = await deleteStudent(selectedStudent.id);
 
-      alert(response.message);
+      toast.success(response.message);
 
       setDeleteModalOpen(false);
       setSelectedStudent(null);
@@ -145,7 +146,7 @@ const Students = () => {
     } catch (error) {
       console.error(error);
 
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Failed to delete student."
       );

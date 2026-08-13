@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from 'react-hot-toast';
 import { useNavigate, useParams } from "react-router-dom";
 
 import Sidebar from "../../../components/Admin/sidebar";
@@ -116,7 +117,7 @@ const EditCourse = () => {
 
       const response = await updateCourse(id, formData);
 
-      alert(
+      toast.success(
         response.message ||
         "Course updated successfully."
       );
@@ -127,7 +128,7 @@ const EditCourse = () => {
 
       console.error("Update course error:", error);
 
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Failed to update course."
       );

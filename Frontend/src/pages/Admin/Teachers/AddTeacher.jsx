@@ -1,4 +1,5 @@
 import { useState , useEffect } from "react";
+import toast from "react-hot-toast";
 import { ArrowLeft, Save, UserCircle2 } from "lucide-react";
 import { Link , useNavigate} from "react-router-dom";
 import Sidebar from "../../../components/Admin/sidebar";
@@ -70,14 +71,14 @@ const handleSubmit = async (e) => {
 
     const response = await createTeacher(formData);
 
-    alert(response.message);
+    toast.success(response.message);
 
     navigate("/admin/teachers");
 
   } catch (error) {
     console.error(error);
 
-    alert(
+    toast.error(
       error.response?.data?.message ||
       "Failed to create teacher."
     );

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { ArrowLeft, Save, UserCircle2 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../../components/Admin/sidebar";
@@ -82,12 +83,12 @@ const EditStudent = () => {
 
       const response = await updateStudent(id, formData);
 
-      alert(response.message || "Student updated successfully");
+      toast.success(response.message || "Student updated successfully");
 
       navigate("/admin/students");
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Failed to update student.");
+      toast.error(error.response?.data?.message || "Failed to update student.");
     } finally {
       setLoading(false);
     }
@@ -122,7 +123,7 @@ const EditStudent = () => {
       });
     } catch (error) {
       console.error("Update Student Error:", error);
-      alert(error.response?.data?.message || "Failed to fetch student details.");
+      toast.error(error.response?.data?.message || "Failed to fetch student details.");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import axios from "axios";
 import {
   User,
@@ -81,12 +82,12 @@ const handleSubmit = async (e) => {
       payload
     );
 
-    alert(response.data.message);
+    toast.success(response.data.message);
     navigate("/signin");
   } catch (error) {
     console.error("Signup API error:", error);
 
-    alert(
+    toast.error(
       error.response?.data?.message ||
       "Something went wrong"
     );

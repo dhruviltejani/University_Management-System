@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
@@ -161,7 +162,7 @@ const Courses = () => {
 
       const response = await deleteCourse(selectedCourse.id);
 
-      alert(response.message);
+      toast.success(response.message);
 
       setDeleteModalOpen(false);
 
@@ -182,7 +183,7 @@ const Courses = () => {
 
       console.error(error);
 
-      alert(
+      toast.error(
         error.response?.data?.message ||
         "Failed to delete course."
       );

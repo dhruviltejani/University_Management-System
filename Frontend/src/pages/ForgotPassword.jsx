@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { Mail, KeyRound, ArrowLeft, CheckCircle2 } from "lucide-react";
@@ -37,7 +38,7 @@ const ForgotPassword = () => {
         { email: email.trim() , }
       );
 
-      alert(response.data.message || "If an account with this email exists, we've sent a password reset link.");
+      toast.success(response.data.message || "If an account with this email exists, we've sent a password reset link.");
       
         setSubmittedEmail(email);
         setIsSubmitted(true);
@@ -45,7 +46,7 @@ const ForgotPassword = () => {
 
     } catch (error) {
       console.error(error.response?.data || error);
-      alert(error.response?.data?.message || "Something went wrong. Please try again.");
+      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

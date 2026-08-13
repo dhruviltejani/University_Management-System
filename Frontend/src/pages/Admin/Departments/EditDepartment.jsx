@@ -1,4 +1,5 @@
 import { useState , useEffect } from "react";
+import toast from 'react-hot-toast';
 import { ArrowLeft, Save, UserCircle2 } from "lucide-react";
 import { Link , useNavigate , useParams } from "react-router-dom";
 import Sidebar from "../../../components/Admin/sidebar";
@@ -53,14 +54,14 @@ const handleSubmit = async (e) => {
 
    const response = await updateDepartment(id, formData);
 
-    alert(response.message);
+    toast.success(response.message);
 
     navigate("/admin/departments");
 
   } catch (error) {
     console.error(error);
 
-    alert(error.response?.data?.message || "Failed to update department.");
+    toast.error(error.response?.data?.message || "Failed to update department.");
   } finally {
     setLoading(false);
   }
@@ -89,7 +90,7 @@ setFormData({
   } catch (error) {
   console.error("Update Department Error:", error);
 
-  alert(error.response?.data?.message || "Failed to update department.");
+  toast.error(error.response?.data?.message || "Failed to update department.");
 }
   finally {
     setLoading(false);
