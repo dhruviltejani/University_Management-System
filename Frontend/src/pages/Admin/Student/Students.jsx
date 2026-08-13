@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../../../components/Admin/sidebar";
 
 import StudentStats from "../../../components/Admin/Student/StudentStats";
-import StudentFilters from "../../../components/Admin/Student/StudentFilters";
+import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import StudentTable from "../../../components/Admin/Student/StudentTable";
 import { DetailsModal } from "../../../components/Common/DetailsModal";
 import { studentDetailsConfig } from "../../../config/studentDetailsConfig";
@@ -14,6 +14,8 @@ import {
   getStudents,
   deleteStudent,
 } from "../../../services/studentService";
+import { getActiveDepartments } from "../../../services/departmentService";
+import { getActiveCourses } from "../../../services/courseService";
 
 const Students = () => {
   const [department, setDepartment] = useState("");
@@ -36,6 +38,24 @@ const Students = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
+  const [departmentList, setDepartmentList] = useState([]);
+  const [courseList, setCourseList] = useState([]);
+
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        const [deptRes, courseRes] = await Promise.all([
+          getActiveDepartments(),
+          getActiveCourses(),
+        ]);
+        if (deptRes.success) setDepartmentList(deptRes.data);
+        if (courseRes.success) setCourseList(courseRes.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchDropdownData();
+  }, []);
 
   useEffect(() => {
     fetchStudents();
@@ -161,18 +181,49 @@ const Students = () => {
 
         <StudentStats />
 
-        <StudentFilters
-          search={search}
-          setSearch={setSearch}
-          department={department}
-          setDepartment={setDepartment}
-          course={course}
-          setCourse={setCourse}
-          semester={semester}
-          setSemester={setSemester}
-          status={status}
-          setStatus={setStatus}
-          resetFilters={resetFilters}
+        <SearchAndFilter
+          searchPlaceholder="Search student..."
+          searchValue={search}
+          onSearchChange={setSearch}
+          onReset={resetFilters}
+          filters={[
+            {
+              value: department,
+              onChange: setDepartment,
+              placeholder: "All Departments",
+              options: departmentList.map((dept) => ({
+                label: dept.department_name,
+                value: dept.id,
+              })),
+            },
+            {
+              value: course,
+              onChange: setCourse,
+              placeholder: "All Courses",
+              options: courseList.map((c) => ({
+                label: c.course_name,
+                value: c.id,
+              })),
+            },
+            {
+              value: semester,
+              onChange: setSemester,
+              placeholder: "Semester",
+              options: [1, 2, 3, 4, 5, 6, 7, 8].map((sem) => ({
+                label: `Semester ${sem}`,
+                value: String(sem),
+              })),
+            },
+            {
+              value: status,
+              onChange: setStatus,
+              placeholder: "All Status",
+              options: [
+                { label: "Active", value: "Active" },
+                { label: "Inactive", value: "Inactive" },
+              ],
+            },
+          ]}
         />
 
         <StudentTable

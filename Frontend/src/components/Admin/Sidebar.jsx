@@ -126,33 +126,38 @@ const Sidebar = () => {
         </div>
 
         {/* Sidebar Bottom Actions & Profile */}
-        <div className="space-y-4 pt-6">
-   
-          <div className="pt-2 border-t border-slate-100 space-y-1">
-            <a href="#settings" className="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-50 font-medium rounded-xl text-xs transition-all">
-              <Settings size={15} />
-              <span>Settings</span>
+        <div className="pt-4 border-t border-slate-100 mt-auto">
+          <div className="flex items-center justify-between px-1">
+            {/* User Profile as Settings Option */}
+            <a href="#settings" className="flex items-center gap-2.5 hover:bg-slate-50 p-2 rounded-xl transition-all flex-1 group">
+              <img 
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" 
+                alt="Alex Rivera" 
+                className="w-8 h-8 rounded-full object-cover border border-slate-200"
+              />
+              <div className="flex-1">
+                <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Alex Rivera</p>
+                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wide mt-0.5 flex items-center gap-1">
+                   Settings
+                </p>
+              </div>
             </a>
             
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2 text-rose-500 hover:bg-rose-50 font-bold rounded-xl text-xs transition-all"
-          >
-            <LogOut size={15} />
-            <span>Logout</span>
-          </button>
-          </div>
-
-          {/* User Profile Footer in Sidebar */}
-          <div className="pt-3 border-t border-slate-100 flex items-center gap-2.5 px-1">
-            <img 
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" 
-              alt="Alex Rivera" 
-              className="w-8 h-8 rounded-full object-cover border border-slate-200"
-            />
-            <div>
-              <p className="text-xs font-bold text-slate-900 leading-tight">Alex Rivera</p>
-              <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wide">REGISTRAR</p>
+            {/* Logout Button with Tooltip */}
+            <div className="relative group flex items-center justify-center">
+              <button
+                onClick={handleLogout}
+                className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all ml-1"
+              >
+                <LogOut size={18} />
+              </button>
+              
+              {/* Tooltip */}
+              <div className="absolute -top-9 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-800 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg pointer-events-none whitespace-nowrap shadow-md z-50">
+                Logout
+                {/* Tooltip Arrow */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+              </div>
             </div>
           </div>
         </div>

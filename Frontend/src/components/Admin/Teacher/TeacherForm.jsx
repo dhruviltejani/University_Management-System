@@ -1,5 +1,5 @@
-import React from "react";
-import { DoorOpen } from "lucide-react";
+import React, { useState } from "react";
+import { DoorOpen, Eye, EyeOff } from "lucide-react";
 
 const TeacherForm = ({
   formData,
@@ -10,8 +10,10 @@ const TeacherForm = ({
   readOnly = false,
   showPassword = false,
   onCancel,
+  errors = {},
+  departments = [],
 }) => {
-
+  const [showPasswordText, setShowPasswordText] = useState(false);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -34,6 +36,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
           </div>
 
           <div>
@@ -48,6 +51,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
           {showPassword && (
@@ -55,15 +59,24 @@ const TeacherForm = ({
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Password
               </label>
-
-              <input
-                type="password"
-                name="password"
-                value={formData.password || ""}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
-                placeholder="Enter Password"
-              />
+              <div className="relative">
+                <input
+                  type={showPasswordText ? "text" : "password"}
+                  name="password"
+                  value={formData.password || ""}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  placeholder="Enter Password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordText(!showPasswordText)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPasswordText ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
           )}
 
@@ -79,6 +92,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.contact_no && <p className="text-red-500 text-xs mt-1">{errors.contact_no}</p>}
           </div>
 
           <div>
@@ -93,6 +107,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.dob && <p className="text-red-500 text-xs mt-1">{errors.dob}</p>}
           </div>
 
           <div>
@@ -112,6 +127,7 @@ const TeacherForm = ({
               <option>Female</option>
               <option>Other</option>
             </select>
+            {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
           </div>
         </div>
       </div>
@@ -135,6 +151,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3"
             />
+            {errors.employee_id && <p className="text-red-500 text-xs mt-1">{errors.employee_id}</p>}
           </div>
 
           <div>
@@ -142,46 +159,64 @@ const TeacherForm = ({
               Department
             </label>
             <select
-                name="department"
-                value={formData.department}
+                name="department_id"
+                value={formData.department_id || ""}
                 onChange={handleChange}
                 className="w-full border rounded-xl px-4 py-3"
             >
                 <option value="">Select Department</option>
-                <option>Computer Science</option>
-                <option>Information Technology</option>
-                <option>Civil Engineering</option>
-                <option>Mechanical Engineering</option>
-                <option>Electrical Engineering</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.department_name}
+                  </option>
+                ))}
             </select>
+            {errors.department_id && <p className="text-red-500 text-xs mt-1">{errors.department_id}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Designation
             </label>
-            <input
-              type="text"
+            <select
               name="designation"
               value={formData.designation}
               onChange={handleChange}
-              readOnly={readOnly}
+              disabled={readOnly}
               className="w-full border rounded-xl px-4 py-3"
-            />
+            >
+              <option value="">Select Designation</option>
+              <option>HOD</option>
+              <option>Professor</option>
+              <option>Associate Professor</option>
+              <option>Assistant Professor</option>
+              <option>Lecturer</option>
+              <option>Guest Faculty</option>
+            </select>
+            {errors.designation && <p className="text-red-500 text-xs mt-1">{errors.designation}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Qualification
             </label>
-            <input
-              type="text"
+            <select
               name="qualification"
               value={formData.qualification}
               onChange={handleChange}
-              readOnly={readOnly}
+              disabled={readOnly}
               className="w-full border rounded-xl px-4 py-3"
-            />
+            >
+              <option value="">Select Qualification</option>
+              <option>Ph.D.</option>
+              <option>M.Tech</option>
+              <option>M.Sc.</option>
+              <option>M.A.</option>
+              <option>B.Tech</option>
+              <option>B.Sc.</option>
+              <option>Other</option>
+            </select>
+            {errors.qualification && <p className="text-red-500 text-xs mt-1">{errors.qualification}</p>}
           </div>
 
           <div>
@@ -198,6 +233,7 @@ const TeacherForm = ({
               placeholder="e.g. Artificial Intelligence"
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.specialization && <p className="text-red-500 text-xs mt-1">{errors.specialization}</p>}
           </div>
 
           <div>
@@ -212,6 +248,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3"
             />
+            {errors.experience_years && <p className="text-red-500 text-xs mt-1">{errors.experience_years}</p>}
           </div>
 
           <div>
@@ -226,6 +263,7 @@ const TeacherForm = ({
               readOnly={readOnly}
               className="w-full border rounded-xl px-4 py-3"
             />
+            {errors.joining_date && <p className="text-red-500 text-xs mt-1">{errors.joining_date}</p>}
           </div>
 
           <div>
@@ -266,6 +304,7 @@ const TeacherForm = ({
         outline-none
       "
     />
+    {errors.office_room && <p className="text-red-500 text-xs mt-1">{errors.office_room}</p>}
   </div>
 </div>
         </div>
@@ -298,6 +337,7 @@ const TeacherForm = ({
             <option>Inactive</option>
             <option>On Leave</option>
           </select>
+          {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
         </div>
       </div>
 

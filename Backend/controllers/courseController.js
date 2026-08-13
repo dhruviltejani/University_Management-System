@@ -125,7 +125,7 @@ const createCourse = async (req, res) => {
     const {
       course_code,
       course_name,
-      department,
+      department_id,
       duration,
       total_semesters,
       description,
@@ -136,7 +136,7 @@ const createCourse = async (req, res) => {
     if (
       !course_code ||
       !course_name ||
-      !department ||
+      !department_id ||
       duration === undefined ||
       total_semesters === undefined
     ) {
@@ -149,7 +149,7 @@ const createCourse = async (req, res) => {
     const course = await Course.createCourse({
       course_code,
       course_name,
-      department,
+      department_id,
       duration,
       total_semesters,
       description,

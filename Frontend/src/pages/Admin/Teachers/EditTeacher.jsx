@@ -7,10 +7,12 @@ import {
   getTeacherById,
   updateTeacher,
 } from "../../../services/teacherService";
-
+import teacherSchema from "../../../Validation/teacherSchema";
+import { getActiveDepartments } from "../../../services/departmentService";
 
 const EditTeacher = () => {
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -18,6 +20,7 @@ const EditTeacher = () => {
     contact_no: "",
     dob: "",
     employee_id: "",
+    department_id: "",
     department: "",
     designation: "",
     qualification: "",
@@ -29,6 +32,20 @@ const EditTeacher = () => {
     status: "",
   });
 
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await getActiveDepartments();
+        setDepartments(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Failed to fetch departments", error);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -38,6 +55,18 @@ const EditTeacher = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  try {
+    await teacherSchema.validate(formData, { abortEarly: false, context: { isAddMode: false } });
+    setErrors({});
+  } catch (validationError) {
+    const newErrors = {};
+    validationError.inner.forEach((err) => {
+      newErrors[err.path] = err.message;
+    });
+    setErrors(newErrors);
+    return;
+  }
 
   try {
     setLoading(true);
@@ -76,6 +105,7 @@ const handleSubmit = async (e) => {
         : "",
 
       employee_id: response.data.employee_id || "",
+      department_id: response.data.department_id || "",
       department: response.data.department || "",
       designation: response.data.designation || "",
       qualification: response.data.qualification || "",
@@ -165,6 +195,8 @@ useEffect(() => {
               showPassword={false}
               submitText="save Changes"
               onCancel={() => navigate("/admin/teachers")}
+              errors={errors}
+              departments={departments}
             />
 
           </div>
@@ -197,7 +229,7 @@ useEffect(() => {
                 </p>
 
                 <span className="mt-4 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold">
-                  {formData.department || "Department"}
+                  {departments.find(d => String(d.id) === String(formData.department_id))?.department_name || formData.department || "Department"}
                 </span>
 
               </div>

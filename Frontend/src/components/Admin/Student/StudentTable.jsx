@@ -1,3 +1,4 @@
+import Pagination from "../../Common/Pagination";
 import React from "react";
 import {
   Eye,
@@ -242,42 +243,7 @@ const StudentTable = ({
           {students.length === 1 ? "student" : "students"}
         </p>
 
-        <div className="flex gap-2">
-
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft size={16} />
-          </button>
-
-          {Array.from(
-            { length: totalPages },
-            (_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => setPage(index + 1)}
-                className={`w-9 h-9 rounded-lg ${
-                  page === index + 1
-                    ? "bg-indigo-600 text-white"
-                    : "border border-slate-200 hover:bg-slate-50"
-                }`}
-              >
-                {index + 1}
-              </button>
-            )
-          )}
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-            className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRight size={16} />
-          </button>
-
-        </div>
+        <Pagination page={page} setPage={setPage} totalPages={totalPages} />
 
       </div>
 

@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 
 const getAllTeachers = async (
   search = "",
-  department = "",
+  department_id = "",
   designation = "",
   status = "",
   page = 1,
@@ -26,7 +26,7 @@ const getAllTeachers = async (
 
     AND (
       $2 = ''
-      OR t.department = $2
+      OR t.department_id::text = $2
     )
 
     AND (
@@ -49,7 +49,7 @@ const getAllTeachers = async (
       ON u.id = t.user_id
     WHERE ${whereClause}
     `,
-    [search, department, designation, status]
+    [search, department_id, designation, status]
   );
 
   const totalRecords = Number(countResult.rows[0].total);
@@ -64,7 +64,8 @@ const getAllTeachers = async (
       u.contact_no,
       u.dob,
       t.employee_id,
-      t.department,
+      t.department_id,
+      d.department_name AS department,
       t.designation,
       t.qualification,
       t.specialization,
@@ -79,6 +80,8 @@ const getAllTeachers = async (
 
     LEFT JOIN teachers t
       ON u.id = t.user_id
+    LEFT JOIN departments d
+      ON t.department_id = d.id
 
     WHERE ${whereClause}
 
@@ -89,7 +92,7 @@ const getAllTeachers = async (
     `,
     [
       search,
-      department,
+      department_id,
       designation,
       status,
       limit,
@@ -116,7 +119,8 @@ const getTeacherById = async (id) => {
       u.dob,
 
       t.employee_id,
-      t.department,
+      t.department_id,
+      d.department_name AS department,
       t.designation,
       t.qualification,
       t.specialization,
@@ -130,6 +134,8 @@ const getTeacherById = async (id) => {
     FROM users u
     JOIN teachers t
       ON u.id=t.user_id
+    LEFT JOIN departments d
+      ON t.department_id = d.id
 
     WHERE u.id=$1
     `,
@@ -148,7 +154,7 @@ const updateTeacher = async (id, data) => {
     dob,
 
     employee_id,
-    department,
+    department_id,
     designation,
     qualification,
     specialization,
@@ -158,6 +164,16 @@ const updateTeacher = async (id, data) => {
     office_room,
     status,
   } = data;
+
+  if (designation === "HOD" && department_id) {
+    const existingHOD = await pool.query(
+      `SELECT u.full_name FROM teachers t JOIN users u ON u.id = t.user_id WHERE t.department_id = $1 AND t.designation = 'HOD' AND t.user_id != $2`,
+      [department_id, id]
+    );
+    if (existingHOD.rows.length > 0) {
+      throw new Error(`Department already has an HOD (${existingHOD.rows[0].full_name}). Please reassign them first.`);
+    }
+  }
 
   await pool.query(
     `
@@ -183,7 +199,7 @@ const updateTeacher = async (id, data) => {
     UPDATE teachers
     SET
       employee_id = $1,
-      department = $2,
+      department_id = $2,
       designation = $3,
       qualification = $4,
       specialization = $5,
@@ -199,7 +215,7 @@ const updateTeacher = async (id, data) => {
     `,
     [
       employee_id,
-      department,
+      department_id,
       designation,
       qualification,
       specialization,
@@ -211,6 +227,13 @@ const updateTeacher = async (id, data) => {
       id,
     ]
   );
+
+  if (designation === "HOD" && department_id) {
+    await pool.query(
+      `UPDATE departments SET hod_name = $1 WHERE id = $2`,
+      [full_name, department_id]
+    );
+  }
 
   return result.rows[0];
 };
@@ -269,7 +292,7 @@ const createTeacher = async (teacherData) => {
       gender,
       password,
       employee_id,
-      department,
+      department_id,
       designation,
       qualification,
       specialization,
@@ -277,6 +300,16 @@ const createTeacher = async (teacherData) => {
       joining_date,
       office_room,
     } = teacherData;
+
+    if (designation === "HOD" && department_id) {
+      const existingHOD = await client.query(
+        `SELECT u.full_name FROM teachers t JOIN users u ON u.id = t.user_id WHERE t.department_id = $1 AND t.designation = 'HOD'`,
+        [department_id]
+      );
+      if (existingHOD.rows.length > 0) {
+        throw new Error(`Department already has an HOD (${existingHOD.rows[0].full_name}). Please reassign them first.`);
+      }
+    }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -315,7 +348,7 @@ const createTeacher = async (teacherData) => {
       (
         user_id,
         employee_id,
-        department,
+        department_id,
         designation,
         qualification,
         specialization,
@@ -331,7 +364,7 @@ const createTeacher = async (teacherData) => {
       [
         userId,
         employee_id,
-        department,
+        department_id,
         designation,
         qualification,
         specialization,
@@ -341,6 +374,13 @@ const createTeacher = async (teacherData) => {
         gender,
       ]
     );
+
+    if (designation === "HOD" && department_id) {
+      await client.query(
+        `UPDATE departments SET hod_name = $1 WHERE id = $2`,
+        [full_name, department_id]
+      );
+    }
 
     await client.query("COMMIT");
 
@@ -371,7 +411,11 @@ const getTeacherStats = async () => {
         WHERE t.status = 'On Leave'
       ) AS on_leave,
 
-      COUNT(DISTINCT t.department) AS departments
+      COUNT(*) FILTER (
+        WHERE t.joining_date >= NOW() - INTERVAL '30 days'
+      ) AS recent_teachers,
+
+      COUNT(DISTINCT t.department_id) AS departments
 
     FROM teachers t
     JOIN users u

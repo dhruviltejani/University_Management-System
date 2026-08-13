@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import Sidebar from "../../../components/Admin/sidebar";
 
 import CourseStats from "../../../components/Admin/Course/CourseStats";
-import CourseFilters from "../../../components/Admin/Course/CourseFilters";
+import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import CourseTable from "../../../components/Admin/Course/CourseTable";
 
 import { DeleteModal } from "../../../components/Common/DeleteModal";
@@ -15,6 +15,7 @@ import {
   getCourses,
   deleteCourse,
 } from "../../../services/courseService";
+import { getActiveDepartments } from "../../../services/departmentService";
 
 import courseDetailsConfig from "../../../config/courseDetailsConfig";
 import deleteCourseConfig from "../../../config/deleteCourseConfig";
@@ -50,6 +51,21 @@ const Courses = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
+  const [departmentList, setDepartmentList] = useState([]);
+
+  useEffect(() => {
+    const fetchActiveDepartments = async () => {
+      try {
+        const res = await getActiveDepartments();
+        if (res.success) {
+          setDepartmentList(res.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchActiveDepartments();
+  }, []);
 
       // =========================
   // FETCH COURSES
@@ -207,14 +223,31 @@ const Courses = () => {
         <CourseStats />
 
         {/* Filters */}
-        <CourseFilters
-          search={search}
-          setSearch={setSearch}
-          department={department}
-          setDepartment={setDepartment}
-          status={status}
-          setStatus={setStatus}
-          resetFilters={resetFilters}
+        <SearchAndFilter
+          searchPlaceholder="Search course name or code..."
+          searchValue={search}
+          onSearchChange={setSearch}
+          onReset={resetFilters}
+          filters={[
+            {
+              value: department,
+              onChange: setDepartment,
+              placeholder: "All Departments",
+              options: departmentList.map((dept) => ({
+                label: dept.department_name,
+                value: dept.id,
+              })),
+            },
+            {
+              value: status,
+              onChange: setStatus,
+              placeholder: "All Status",
+              options: [
+                { label: "Active", value: "Active" },
+                { label: "Inactive", value: "Inactive" },
+              ],
+            },
+          ]}
         />
 
         {/* Course Table */}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Mail, Lock, Eye, EyeOff, GraduationCap, UserCheck, ShieldCheck, Building2 } from 'lucide-react';
 import { Link, useNavigate } from "react-router-dom";
+import signinschema from '../Validation/signinSchema';
 
 const Sign_in = () => {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ const Sign_in = () => {
     email: '',
     password: '',
   });
+
+  const [errors, setErrors] = useState({});
 
   const handleRoleChange = (selectedRole) => {
     setFormData((prev) => ({ ...prev, role: selectedRole }));
@@ -29,14 +32,32 @@ const Sign_in = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email.trim() || !formData.password.trim()) {
-      return alert("Please fill all fields");
-    }
+  try {
+    // Validate form data using Yup
+    await signinschema.validate(
+      {
+        email: formData.email,
+        password: formData.password,
+      },
+      { abortEarly: false }
+    );
 
+    // Clear previous errors if validation passes
+    setErrors({});
+
+  } catch (validationError) {
+    const newErrors = {};
+
+    validationError.inner.forEach((err) => {
+      newErrors[err.path] = err.message;
+    });
+
+    setErrors(newErrors);
+    return; // Stop form submission
+  }
     setLoading(true);
-
     try {
-      // Backend request including the chosen role
+    // Backend request including the chosen role
       
       console.log(formData);
       
@@ -45,8 +66,10 @@ const Sign_in = () => {
         formData
       );
 
+
       // Save JWT & user info
       localStorage.setItem("token", response.data.token);
+
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       alert(response.data.message);
@@ -182,13 +205,13 @@ const Sign_in = () => {
                 <input
                   type="email"
                   name="email"
-                  required
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={roleConfig[formData.role].placeholder}
                   className="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                 />
               </div>
+                {errors.email && (<p className="text-red-500 text-xs mt-1">{errors.email}</p>)}  
 
               {/* Password */}
               <div className="relative">
@@ -198,20 +221,22 @@ const Sign_in = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
-                  required
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter Password"
                   className="w-full pl-10 pr-10 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                 />
+                
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
-                >
+                  >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+                  {errors.password && (<p className="text-red-500 text-xs mt-1">{errors.password}</p>)}   
 
               <div className="flex justify-end">
                 <Link

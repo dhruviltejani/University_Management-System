@@ -8,6 +8,8 @@ const CourseForm = ({
   submitText = "Save Course",
   readOnly = false,
   onCancel,
+  errors = {},
+  departments = [],
 }) => {
 
   return (
@@ -36,6 +38,7 @@ const CourseForm = ({
               placeholder="e.g. CSE101"
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.course_code && <p className="text-red-500 text-xs mt-1">{errors.course_code}</p>}
           </div>
 
           <div>
@@ -52,6 +55,7 @@ const CourseForm = ({
               placeholder="e.g. Bachelor of Technology"
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.course_name && <p className="text-red-500 text-xs mt-1">{errors.course_name}</p>}
           </div>
 
         </div>
@@ -73,22 +77,20 @@ const CourseForm = ({
             </label>
 
             <select
-              name="department"
-              value={formData.department}
+              name="department_id"
+              value={formData.department_id || ""}
               onChange={handleChange}
               disabled={readOnly}
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">Select Department</option>
-              <option>Computer Science</option>
-              <option>Information Technology</option>
-              <option>Civil Engineering</option>
-              <option>Mechanical Engineering</option>
-              <option>Electrical Engineering</option>
-              <option>Electronics</option>
-              <option>Business Administration</option>
-              <option>Commerce</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.department_name}
+                </option>
+              ))}
             </select>
+            {errors.department_id && <p className="text-red-500 text-xs mt-1">{errors.department_id}</p>}
           </div>
 
           <div>
@@ -107,6 +109,7 @@ const CourseForm = ({
               placeholder="e.g. 4"
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.duration && <p className="text-red-500 text-xs mt-1">{errors.duration}</p>}
           </div>
 
           <div>
@@ -125,6 +128,7 @@ const CourseForm = ({
               placeholder="e.g. 8"
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.total_semesters && <p className="text-red-500 text-xs mt-1">{errors.total_semesters}</p>}
           </div>
 
           <div className="md:col-span-2">
@@ -141,6 +145,7 @@ const CourseForm = ({
               placeholder="Enter course description..."
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
             />
+            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
           </div>
 
         </div>
@@ -171,6 +176,7 @@ const CourseForm = ({
             <option>Active</option>
             <option>Inactive</option>
           </select>
+          {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
 
         </div>
 

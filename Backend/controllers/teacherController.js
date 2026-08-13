@@ -119,7 +119,7 @@ const createTeacher = async (req, res) => {
       gender,
       password,
       employee_id,
-      department,
+      department_id,
       designation,
       qualification,
       specialization,
@@ -136,7 +136,7 @@ const createTeacher = async (req, res) => {
       !contact_no ||
       !password ||
       !employee_id ||
-      !department ||
+      !department_id ||
       !designation ||
       !qualification ||
       experience_years === undefined ||
@@ -157,7 +157,7 @@ const createTeacher = async (req, res) => {
       gender,
       password,
       employee_id,
-      department,
+      department_id,
       designation,
       qualification,
       specialization,

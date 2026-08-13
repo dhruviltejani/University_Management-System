@@ -3,11 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Sidebar from "../../../components/Admin/sidebar";
 import CourseForm from "../../../components/Admin/Course/CourseForm";
+import courseSchema from "../../../Validation/courseSchema";
 
 import {
   getCourseById,
   updateCourse,
 } from "../../../services/courseService";
+import { getActiveDepartments } from "../../../services/departmentService";
 
 const EditCourse = () => {
 
@@ -17,18 +19,33 @@ const EditCourse = () => {
   const { id } = useParams();
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [fetching, setFetching] = useState(true);
+
+  const [departments, setDepartments] = useState([]);
 
   const [formData, setFormData] = useState({
     course_code: "",
     course_name: "",
-    department: "",
+    department_id: "",
     duration: "",
     total_semesters: "",
     description: "",
     status: "Active",
   });
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await getActiveDepartments();
+        setDepartments(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Failed to fetch departments", error);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   // =========================
   // FETCH COURSE BY ID
@@ -80,11 +97,21 @@ const EditCourse = () => {
   // UPDATE COURSE
   // =========================
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
+      await courseSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
 
+    try {
       setLoading(true);
 
       const response = await updateCourse(id, formData);
@@ -160,6 +187,8 @@ const EditCourse = () => {
           loading={loading}
           submitText="Update Course"
           onCancel={handleCancel}
+          errors={errors}
+          departments={departments}
         />
 
       </main>

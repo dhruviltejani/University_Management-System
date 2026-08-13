@@ -4,9 +4,12 @@ import { Link , useNavigate} from "react-router-dom";
 import Sidebar from "../../../components/Admin/sidebar";
 import TeacherForm from "../../../components/Admin/Teacher/TeacherForm";
 import { createTeacher } from "../../../services/teacherService";
+import teacherSchema from "../../../Validation/teacherSchema";
+import { getActiveDepartments } from "../../../services/departmentService";
 
 const AddTeacher = () => {
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -15,7 +18,7 @@ const AddTeacher = () => {
     dob: "",
     password: "",
     employee_id: "",
-    department: "",
+    department_id: "",
     designation: "",
     qualification: "",
     specialization: "",
@@ -26,6 +29,20 @@ const AddTeacher = () => {
     status: "",
   });
 
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await getActiveDepartments();
+        setDepartments(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Failed to fetch departments", error);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -35,6 +52,18 @@ const AddTeacher = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  try {
+    await teacherSchema.validate(formData, { abortEarly: false, context: { isAddMode: true } });
+    setErrors({});
+  } catch (validationError) {
+    const newErrors = {};
+    validationError.inner.forEach((err) => {
+      newErrors[err.path] = err.message;
+    });
+    setErrors(newErrors);
+    return;
+  }
 
   try {
     setLoading(true);
@@ -115,6 +144,8 @@ const handleSubmit = async (e) => {
               showPassword={true}
               submitText="Add Teacher"
               onCancel={() => navigate("/admin/teachers")}
+              errors={errors}
+              departments={departments}
             />
 
           </div>
@@ -147,7 +178,7 @@ const handleSubmit = async (e) => {
                 </p>
 
                 <span className="mt-4 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold">
-                  {formData.department || "Department"}
+                  {departments.find(d => String(d.id) === String(formData.department_id))?.department_name || "Department"}
                 </span>
 
               </div>

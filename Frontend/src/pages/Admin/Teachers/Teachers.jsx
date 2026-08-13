@@ -1,9 +1,10 @@
 import TeacherStats from "../../../components/Admin/Teacher/TeacherStats";
-import TeacherFilters from "../../../components/Admin/Teacher/TeacherFilters";
+import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
 import Sidebar from "../../../components/Admin/sidebar";
 import { useState, useEffect } from "react";
 import { getTeachers , deleteTeacher} from "../../../services/teacherService";
+import { getActiveDepartments } from "../../../services/departmentService";
 import { DeleteModal } from "../../../components/Common/DeleteModal";
 import  {DetailsModal} from "../../../components/Common/DetailsModal";
 import {teacherDetailsConfig} from "../../../config/teacherDetailsConfig";
@@ -23,8 +24,21 @@ const [totalPages, setTotalPages] = useState(1);
 const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [selectedTeacher, setSelectedTeacher] = useState(null);
 const [showModal, setShowModal] = useState(false);
+const [departmentList, setDepartmentList] = useState([]);
 
-
+useEffect(() => {
+  const fetchActiveDepartments = async () => {
+    try {
+      const res = await getActiveDepartments();
+      if (res.success) {
+        setDepartmentList(res.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  fetchActiveDepartments();
+}, []);
 
 useEffect(() => {
   // setPage(1);
@@ -148,17 +162,44 @@ const handleDelete = async () => {
 </div>
         <TeacherStats />
 
-      <TeacherFilters
-  search={search}
-  setSearch={setSearch}
-  department={department}
-  setDepartment={setDepartment}
-  designation={designation}
-  setDesignation={setDesignation}
-  status={status}
-  setStatus={setStatus}
-  resetFilters={resetFilters}
-/>
+      <SearchAndFilter
+        searchPlaceholder="Search by name, employee ID or email..."
+        searchValue={search}
+        onSearchChange={setSearch}
+        onReset={resetFilters}
+        filters={[
+          {
+            value: department,
+            onChange: setDepartment,
+            placeholder: "All Departments",
+            options: departmentList.map((dept) => ({
+              label: dept.department_name,
+              value: dept.id,
+            })),
+          },
+          {
+            value: designation,
+            onChange: setDesignation,
+            placeholder: "All Designations",
+            options: [
+              { label: "Professor", value: "Professor" },
+              { label: "Associate Professor", value: "Associate Professor" },
+              { label: "Assistant Professor", value: "Assistant Professor" },
+              { label: "HOD", value: "HOD" },
+            ],
+          },
+          {
+            value: status,
+            onChange: setStatus,
+            placeholder: "All Status",
+            options: [
+              { label: "Active", value: "Active" },
+              { label: "On Leave", value: "On Leave" },
+              { label: "Inactive", value: "Inactive" },
+            ],
+          },
+        ]}
+      />
         
         <TeacherTable
             teachers={teachers}

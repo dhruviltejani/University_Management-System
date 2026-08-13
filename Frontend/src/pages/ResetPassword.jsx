@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import resetPasswordSchema from '../Validation/resetPasswordSchema';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [statusMessage, setStatusMessage] = useState({
     type: "",
@@ -57,19 +59,21 @@ const ResetPassword = () => {
       return;
     }
 
-    if (newPassword !== confirmPassword) {
-      setStatusMessage({
-        type: "error",
-        text: "Passwords do not match.",
+    try {
+      await resetPasswordSchema.validate(
+        {
+          password: newPassword,
+          confirm_password: confirmPassword,
+        },
+        { abortEarly: false }
+      );
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
       });
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setStatusMessage({
-        type: "error",
-        text: "Password must be at least 6 characters long.",
-      });
+      setErrors(newErrors);
       return;
     }
 
@@ -229,6 +233,7 @@ const ResetPassword = () => {
                 </button>
 
               </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
 
               {/* Confirm Password */}
 
@@ -270,6 +275,7 @@ const ResetPassword = () => {
                 </button>
 
               </div>
+              {errors.confirm_password && <p className="text-red-500 text-xs mt-1">{errors.confirm_password}</p>}
 
               <button
                 type="submit"

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const StudentForm = ({
   formData,
@@ -9,7 +10,22 @@ const StudentForm = ({
   readOnly = false,
   showPassword = false,
   onCancel,
+  errors = {},
+  departments = [],
+  courses = [],
 }) => {
+  const filteredCourses = courses.filter(
+    (c) => String(c.department_id) === String(formData.department_id)
+  );
+
+  const selectedCourse = courses.find(
+    (c) => String(c.id) === String(formData.course_id)
+  );
+  const totalSemesters = selectedCourse ? selectedCourse.total_semesters : 0;
+  const semesterOptions = Array.from({ length: totalSemesters }, (_, i) => i + 1);
+
+  const [showPasswordText, setShowPasswordText] = useState(false);
+
   return (
     <form id="student-form" onSubmit={handleSubmit} className="space-y-8">
       {/* Personal Information */}
@@ -31,6 +47,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
           </div>
 
           <div>
@@ -45,6 +62,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
           {showPassword && (
@@ -52,14 +70,24 @@ const StudentForm = ({
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Password
               </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password || ""}
-                onChange={handleChange}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
-                placeholder="Enter Password"
-              />
+              <div className="relative">
+                <input
+                  type={showPasswordText ? "text" : "password"}
+                  name="password"
+                  value={formData.password || ""}
+                  onChange={handleChange}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none pr-10"
+                  placeholder="Enter Password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordText(!showPasswordText)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPasswordText ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
           )}
 
@@ -75,6 +103,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.contact_no && <p className="text-red-500 text-xs mt-1">{errors.contact_no}</p>}
           </div>
 
           <div>
@@ -89,6 +118,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.dob && <p className="text-red-500 text-xs mt-1">{errors.dob}</p>}
           </div>
         </div>
       </div>
@@ -112,6 +142,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.enrollment_no && <p className="text-red-500 text-xs mt-1">{errors.enrollment_no}</p>}
           </div>
 
           <div>
@@ -119,47 +150,62 @@ const StudentForm = ({
               Department
             </label>
             <select
-              name="department"
-              value={formData.department || ""}
+              name="department_id"
+              value={formData.department_id || ""}
               onChange={handleChange}
               disabled={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
             >
               <option value="">Select Department</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Information Technology">Information Technology</option>
-              <option value="Civil Engineering">Civil Engineering</option>
-              <option value="Mechanical Engineering">Mechanical Engineering</option>
-              <option value="Electrical Engineering">Electrical Engineering</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.department_name}
+                </option>
+              ))}
             </select>
+            {errors.department_id && <p className="text-red-500 text-xs mt-1">{errors.department_id}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Course
             </label>
-            <input
-              type="text"
-              name="course"
-              value={formData.course || ""}
+            <select
+              name="course_id"
+              value={formData.course_id || ""}
               onChange={handleChange}
-              readOnly={readOnly}
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
+              disabled={readOnly || !formData.department_id}
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none bg-white disabled:bg-slate-50"
+            >
+              <option value="">Select Course</option>
+              {filteredCourses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.course_name}
+                </option>
+              ))}
+            </select>
+            {errors.course_id && <p className="text-red-500 text-xs mt-1">{errors.course_id}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Semester
             </label>
-            <input
-              type="number"
+            <select
               name="semester"
               value={formData.semester || ""}
               onChange={handleChange}
-              readOnly={readOnly}
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
+              disabled={readOnly || !formData.course_id}
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none bg-white disabled:bg-slate-50"
+            >
+              <option value="">Select Semester</option>
+              {semesterOptions.map((sem) => (
+                <option key={sem} value={sem}>
+                  Semester {sem}
+                </option>
+              ))}
+            </select>
+            {errors.semester && <p className="text-red-500 text-xs mt-1">{errors.semester}</p>}
           </div>
 
           <div>
@@ -174,6 +220,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.admission_year && <p className="text-red-500 text-xs mt-1">{errors.admission_year}</p>}
           </div>
         </div>
       </div>
@@ -197,6 +244,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.father_name && <p className="text-red-500 text-xs mt-1">{errors.father_name}</p>}
           </div>
 
           <div>
@@ -211,6 +259,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.mother_name && <p className="text-red-500 text-xs mt-1">{errors.mother_name}</p>}
           </div>
 
           <div>
@@ -225,6 +274,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.guardian_phone && <p className="text-red-500 text-xs mt-1">{errors.guardian_phone}</p>}
           </div>
 
           <div>
@@ -239,6 +289,7 @@ const StudentForm = ({
               readOnly={readOnly}
               className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
+            {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
           </div>
         </div>
       </div>
@@ -265,6 +316,7 @@ const StudentForm = ({
             <option>Active</option>
             <option>Inactive</option>
           </select>
+          {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
         </div>
       </div>
 

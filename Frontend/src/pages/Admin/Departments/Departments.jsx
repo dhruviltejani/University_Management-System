@@ -1,5 +1,5 @@
 import DepartmentStats from "../../../components/Admin/Department/DepartmentStats";
-import DepartmentFilters from "../../../components/Admin/Department/DepartmentFilters";
+import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import DepartmentTable from "../../../components/Admin/Department/DepartmentTable";
 import { DetailsModal } from "../../../components/Common/DetailsModal";
 import { departmentDetailsConfig } from "../../../config/departmentDetailsConfig";
@@ -141,12 +141,22 @@ Manage university departments, HODs, office details and departmental information
 </div>
         <DepartmentStats />
 
-      <DepartmentFilters
-        search={search}
-        setSearch={setSearch}
-        status={status}
-        setStatus={setStatus}
-        resetFilters={resetFilters}
+      <SearchAndFilter
+        searchPlaceholder="Search by department name, code..."
+        searchValue={search}
+        onSearchChange={setSearch}
+        onReset={resetFilters}
+        filters={[
+          {
+            value: status,
+            onChange: setStatus,
+            placeholder: "All Status",
+            options: [
+              { label: "Active", value: "Active" },
+              { label: "Inactive", value: "Inactive" },
+            ],
+          },
+        ]}
       />
         
         <DepartmentTable

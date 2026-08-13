@@ -1,0 +1,24 @@
+﻿                                         Table "public.teachers"
+      Column      |          Type          | Collation | Nullable |               Default                
+------------------+------------------------+-----------+----------+--------------------------------------
+ id               | integer                |           | not null | nextval('teachers_id_seq'::regclass)
+ user_id          | integer                |           | not null | 
+ employee_id      | character varying(20)  |           |          | 
+ designation      | character varying(100) |           |          | 
+ qualification    | character varying(150) |           |          | 
+ specialization   | character varying(150) |           |          | 
+ experience_years | integer                |           |          | 0
+ joining_date     | date                   |           |          | 
+ office_room      | character varying(50)  |           |          | 
+ profile_photo    | text                   |           |          | 
+ status           | character varying(20)  |           |          | 'Active'::character varying
+ gender           | character varying(6)   |           |          | 
+ department_id    | integer                |           |          | 
+Indexes:
+    "teachers_pkey" PRIMARY KEY, btree (id)
+    "teachers_employee_id_key" UNIQUE CONSTRAINT, btree (employee_id)
+    "teachers_user_id_key" UNIQUE CONSTRAINT, btree (user_id)
+Foreign-key constraints:
+    "teachers_department_id_fkey" FOREIGN KEY (department_id) REFERENCES departments(id)
+    "teachers_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+

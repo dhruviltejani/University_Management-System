@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getStudentStats } from '../../services/studentService';
+import { getTeacherStats } from '../../services/teacherService';
+import { getDepartmentStats } from '../../services/departmentService';
+import { getCourseStats } from '../../services/courseService';
 import {
   GraduationCap,
   LayoutDashboard,
@@ -24,6 +29,92 @@ import {
 import Sidebar from '../../components/Admin/sidebar';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    students: 0,
+    recentStudents: 0,
+    teachers: 0,
+    recentTeachers: 0,
+    courses: 0,
+    recentCourses: 0,
+    departments: 0,
+    deptDistribution: [],
+    enrollmentTrends: []
+  });
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const [studentRes, teacherRes, deptRes, courseRes] = await Promise.all([
+          getStudentStats(),
+          getTeacherStats(),
+          getDepartmentStats(),
+          getCourseStats()
+        ]);
+
+        setStats({
+          students: studentRes?.data?.total_students || 0,
+          recentStudents: studentRes?.data?.recent_students || 0,
+          teachers: teacherRes?.data?.total_teachers || 0,
+          recentTeachers: teacherRes?.data?.recent_teachers || 0,
+          departments: deptRes?.data?.total_departments || 0,
+          courses: courseRes?.data?.active_courses || 0,
+          recentCourses: courseRes?.data?.recent_courses || 0,
+          deptDistribution: studentRes?.data?.department_distribution || [],
+          enrollmentTrends: studentRes?.data?.enrollment_trends || []
+        });
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats", error);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
+  // Compute dynamic area chart paths
+  const maxEnrollment = Math.max(...stats.enrollmentTrends.map(t => Number(t.count)), 10);
+  const getAreaPath = () => {
+    if (!stats.enrollmentTrends || stats.enrollmentTrends.length === 0) {
+      return "M 0 100 L 500 100";
+    }
+    const stepX = 500 / Math.max(stats.enrollmentTrends.length - 1, 1);
+    const points = stats.enrollmentTrends.map((t, i) => {
+      const x = i * stepX;
+      const y = 100 - (Number(t.count) / maxEnrollment) * 90;
+      return `${x} ${y}`;
+    });
+    return `M 0 100 L ${points[0].split(' ')[0]} ${points[0].split(' ')[1]} L ` + points.join(" L ") + ` L 500 100 Z`;
+  };
+
+  const getLinePath = () => {
+    if (!stats.enrollmentTrends || stats.enrollmentTrends.length === 0) {
+      return "M 0 100 L 500 100";
+    }
+    const stepX = 500 / Math.max(stats.enrollmentTrends.length - 1, 1);
+    const points = stats.enrollmentTrends.map((t, i) => {
+      const x = i * stepX;
+      const y = 100 - (Number(t.count) / maxEnrollment) * 90;
+      return `${x} ${y}`;
+    });
+    return "M " + points.join(" L ");
+  };
+
+  // Compute dynamic donut chart properties
+  const donutColors = ["#3B29E3", "#0ea5e9", "#94a3b8", "#cbd5e1", "#818cf8", "#f472b6"];
+  const totalDonutStudents = stats.deptDistribution.reduce((sum, d) => sum + Number(d.count), 0);
+  let currentDonutOffset = 0;
+  const donutSegments = stats.deptDistribution.map((dept, idx) => {
+    const count = Number(dept.count);
+    const percent = totalDonutStudents > 0 ? (count / totalDonutStudents) * 100 : 0;
+    const segment = {
+      ...dept,
+      percent,
+      offset: -currentDonutOffset,
+      color: donutColors[idx % donutColors.length]
+    };
+    currentDonutOffset += percent;
+    return segment;
+  });
+
   return (
 <div className="h-screen overflow-hidden bg-[#F8F9FD] flex text-slate-700 font-sans">      
       {/* Sidebar */}
@@ -51,12 +142,12 @@ const Dashboard = () => {
                 <GraduationCap size={18} />
               </div>
               <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 font-bold text-[10px] rounded-full">
-                +14 this week
+                +{stats.recentStudents} this week
               </span>
             </div>
             <div>
               <p className="text-[11px] font-medium text-slate-400">Total Students</p>
-              <p className="text-2xl font-black text-slate-900 mt-0.5">1,254</p>
+              <p className="text-2xl font-black text-slate-900 mt-0.5">{stats.students}</p>
             </div>
           </div>
 
@@ -67,12 +158,12 @@ const Dashboard = () => {
                 <UserCheck size={18} />
               </div>
               <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 font-bold text-[10px] rounded-full">
-                +3 this month
+                +{stats.recentTeachers} this month
               </span>
             </div>
             <div>
               <p className="text-[11px] font-medium text-slate-400">Faculty Members</p>
-              <p className="text-2xl font-black text-slate-900 mt-0.5">86</p>
+              <p className="text-2xl font-black text-slate-900 mt-0.5">{stats.teachers}</p>
             </div>
           </div>
 
@@ -83,12 +174,12 @@ const Dashboard = () => {
                 <BookOpen size={18} />
               </div>
               <span className="px-2 py-0.5 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-full">
-                +2 recent
+                +{stats.recentCourses} recent
               </span>
             </div>
             <div>
               <p className="text-[11px] font-medium text-slate-400">Active Courses</p>
-              <p className="text-2xl font-black text-slate-900 mt-0.5">42</p>
+              <p className="text-2xl font-black text-slate-900 mt-0.5">{stats.courses}</p>
             </div>
           </div>
 
@@ -103,8 +194,8 @@ const Dashboard = () => {
               </span>
             </div>
             <div>
-              <p className="text-[11px] font-medium text-slate-400">Academic Units</p>
-              <p className="text-2xl font-black text-slate-900 mt-0.5">8</p>
+              <p className="text-[11px] font-medium text-slate-400">Active Departments</p>
+              <p className="text-2xl font-black text-slate-900 mt-0.5">{stats.departments}</p>
             </div>
           </div>
 
@@ -138,11 +229,11 @@ const Dashboard = () => {
                     </linearGradient>
                   </defs>
                   <path
-                    d="M 0 80 Q 70 30, 140 60 T 280 20 T 420 50 L 500 10 L 500 100 L 0 100 Z"
+                    d={getAreaPath()}
                     fill="url(#chartGradient)"
                   />
                   <path
-                    d="M 0 80 Q 70 30, 140 60 T 280 20 T 420 50 L 500 10"
+                    d={getLinePath()}
                     fill="none"
                     stroke="#4F46E5"
                     strokeWidth="2.5"
@@ -152,13 +243,21 @@ const Dashboard = () => {
 
               {/* Chart X-Axis Month Labels */}
               <div className="flex justify-between text-[10px] text-slate-400 font-semibold uppercase mt-3 px-1">
-                <span>Sep</span>
-                <span>Oct</span>
-                <span>Nov</span>
-                <span>Dec</span>
-                <span>Jan</span>
-                <span>Feb</span>
-                <span>Mar</span>
+                {stats.enrollmentTrends && stats.enrollmentTrends.length > 0 ? (
+                  stats.enrollmentTrends.map((t, idx) => (
+                    <span key={idx}>{t.month}</span>
+                  ))
+                ) : (
+                  <>
+                    <span>Sep</span>
+                    <span>Oct</span>
+                    <span>Nov</span>
+                    <span>Dec</span>
+                    <span>Jan</span>
+                    <span>Feb</span>
+                    <span>Mar</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -177,40 +276,39 @@ const Dashboard = () => {
                   fill="none"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
-                <path
-                  className="text-[#3B29E3]"
-                  strokeDasharray="75, 100"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
+                {donutSegments.map((segment, idx) => (
+                  <path
+                    key={idx}
+                    strokeDasharray={`${segment.percent}, 100`}
+                    strokeDashoffset={segment.offset}
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    stroke={segment.color}
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                ))}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-black text-slate-900">1,254</span>
+                <span className="text-xs font-black text-slate-900">{stats.students}</span>
                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Students</span>
               </div>
             </div>
 
             {/* Donut Legend */}
             <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#3B29E3]"></span>
-                <span>CS (42%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-                <span>IT (28%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                <span>Mech (15%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                <span>Other (15%)</span>
-              </div>
+              {donutSegments.length > 0 ? (
+                donutSegments.map((segment, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: segment.color }}></span>
+                    <span className="truncate" title={segment.department_name}>
+                      {segment.department_name} ({Math.round(segment.percent)}%)
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center text-slate-400">No data</div>
+              )}
             </div>
           </div>
 
@@ -277,7 +375,7 @@ const Dashboard = () => {
           {/* Quick Action Grid */}
           <div className="grid grid-cols-2 gap-3">
             
-            <button className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
+            <button onClick={() => navigate('/admin/students/add')} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
               <div className="w-9 h-9 rounded-xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center mb-2 group-hover:scale-105 transition-all">
                 <UserPlus size={16} />
               </div>
@@ -285,7 +383,7 @@ const Dashboard = () => {
               <span className="text-[9px] text-slate-400 mt-0.5">New Enrollment</span>
             </button>
 
-            <button className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
+            <button onClick={() => navigate('/admin/teachers/add')} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
               <div className="w-9 h-9 rounded-xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center mb-2 group-hover:scale-105 transition-all">
                 <UserCheck size={16} />
               </div>
@@ -293,7 +391,7 @@ const Dashboard = () => {
               <span className="text-[9px] text-slate-400 mt-0.5">Faculty Hire</span>
             </button>
 
-            <button className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
+            <button onClick={() => navigate('/admin/courses/add')} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
               <div className="w-9 h-9 rounded-xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center mb-2 group-hover:scale-105 transition-all">
                 <PlusSquare size={16} />
               </div>
@@ -301,12 +399,12 @@ const Dashboard = () => {
               <span className="text-[9px] text-slate-400 mt-0.5">New Curriculum</span>
             </button>
 
-            <button className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
+            <button onClick={() => navigate('/admin/departments/add')} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group">
               <div className="w-9 h-9 rounded-xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center mb-2 group-hover:scale-105 transition-all">
-                <Megaphone size={16} />
+                <Building2 size={16}/>
               </div>
-              <span className="text-[11px] font-bold text-slate-800">Publish Notice</span>
-              <span className="text-[9px] text-slate-400 mt-0.5">Global Broadcast</span>
+              <span className="text-[11px] font-bold text-slate-800">Create Department</span>
+              <span className="text-[9px] text-slate-400 mt-0.5">New Department</span>
             </button>
 
           </div>

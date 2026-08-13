@@ -5,7 +5,7 @@ const pool = require("../db");
 // ==========================
 const getAllCourses = async (
   search = "",
-  department = "",
+  department_id = "",
   status = "",
   page = 1,
   limit = 10
@@ -17,18 +17,18 @@ const getAllCourses = async (
   const whereClause = `
     (
       $1 = ''
-      OR course_name ILIKE '%' || $1 || '%'
-      OR course_code ILIKE '%' || $1 || '%'
+      OR c.course_name ILIKE '%' || $1 || '%'
+      OR c.course_code ILIKE '%' || $1 || '%'
     )
 
     AND (
       $2 = ''
-      OR department = $2
+      OR c.department_id::text = $2
     )
 
     AND (
       $3 = ''
-      OR status = $3
+      OR c.status = $3
     )
   `;
 
@@ -36,12 +36,12 @@ const getAllCourses = async (
   const countResult = await pool.query(
     `
     SELECT COUNT(*) AS total
-    FROM courses
+    FROM courses c
     WHERE ${whereClause}
     `,
     [
       search,
-      department,
+      department_id,
       status,
     ]
   );
@@ -52,29 +52,31 @@ const getAllCourses = async (
   const result = await pool.query(
     `
     SELECT
-      id,
-      course_code,
-      course_name,
-      department,
-      duration,
-      total_semesters,
-      description,
-      status,
-      created_at,
-      updated_at
+      c.id,
+      c.course_code,
+      c.course_name,
+      c.department_id,
+      d.department_name AS department,
+      c.duration,
+      c.total_semesters,
+      c.description,
+      c.status,
+      c.created_at,
+      c.updated_at
 
-    FROM courses
+    FROM courses c
+    LEFT JOIN departments d ON c.department_id = d.id
 
     WHERE ${whereClause}
 
-    ORDER BY course_name ASC
+    ORDER BY c.course_name ASC
 
     LIMIT $4
     OFFSET $5
     `,
     [
       search,
-      department,
+      department_id,
       status,
       limit,
       offset,
@@ -95,20 +97,22 @@ const getCourseById = async (id) => {
   const result = await pool.query(
     `
     SELECT
-      id,
-      course_code,
-      course_name,
-      department,
-      duration,
-      total_semesters,
-      description,
-      status,
-      created_at,
-      updated_at
+      c.id,
+      c.course_code,
+      c.course_name,
+      c.department_id,
+      d.department_name AS department,
+      c.duration,
+      c.total_semesters,
+      c.description,
+      c.status,
+      c.created_at,
+      c.updated_at
 
-    FROM courses
+    FROM courses c
+    LEFT JOIN departments d ON c.department_id = d.id
 
-    WHERE id = $1
+    WHERE c.id = $1
     `,
     [id]
   );
@@ -123,7 +127,7 @@ const createCourse = async (courseData) => {
   const {
     course_code,
     course_name,
-    department,
+    department_id,
     duration,
     total_semesters,
     description,
@@ -136,7 +140,7 @@ const createCourse = async (courseData) => {
     (
       course_code,
       course_name,
-      department,
+      department_id,
       duration,
       total_semesters,
       description,
@@ -149,7 +153,7 @@ const createCourse = async (courseData) => {
     [
       course_code,
       course_name,
-      department,
+      department_id,
       duration,
       total_semesters,
       description,
@@ -167,7 +171,7 @@ const updateCourse = async (id, courseData) => {
   const {
     course_code,
     course_name,
-    department,
+    department_id,
     duration,
     total_semesters,
     description,
@@ -180,7 +184,7 @@ const updateCourse = async (id, courseData) => {
     SET
       course_code = $1,
       course_name = $2,
-      department = $3,
+      department_id = $3,
       duration = $4,
       total_semesters = $5,
       description = $6,
@@ -194,7 +198,7 @@ const updateCourse = async (id, courseData) => {
     [
       course_code,
       course_name,
-      department,
+      department_id,
       duration,
       total_semesters,
       description,
@@ -240,7 +244,11 @@ const getCourseStats = async () => {
         WHERE status = 'Inactive'
       ) AS inactive_courses,
 
-      COUNT(DISTINCT department) AS departments
+      COUNT(*) FILTER (
+        WHERE created_at >= NOW() - INTERVAL '30 days'
+      ) AS recent_courses,
+
+      COUNT(DISTINCT department_id) AS departments
 
     FROM courses
   `);

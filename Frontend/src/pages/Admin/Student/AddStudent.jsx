@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../../components/Admin/sidebar";
 import StudentForm from "../../../components/Admin/Student/StudentForm";
-
 import { createStudent } from "../../../services/studentService";
+import { getActiveDepartments } from "../../../services/departmentService";
+import { getActiveCourses } from "../../../services/courseService";
+import studentSchema from "../../../Validation/studentSchema";
 
 const AddStudent = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     // Personal Information
@@ -21,8 +24,8 @@ const AddStudent = () => {
 
     // Academic Information
     enrollment_no: "",
-    department: "",
-    course: "",
+    department_id: "",
+    course_id: "",
     semester: "",
     admission_year: "",
 
@@ -35,6 +38,25 @@ const AddStudent = () => {
     status: "",
   });
 
+  const [departments, setDepartments] = useState([]);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [deptRes, courseRes] = await Promise.all([
+          getActiveDepartments(),
+          getActiveCourses(),
+        ]);
+        setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
+        setCourses(Array.isArray(courseRes.data) ? courseRes.data : []);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   // =========================
   // HANDLE INPUT CHANGE
   // =========================
@@ -44,6 +66,7 @@ const AddStudent = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+      ...(name === "department_id" ? { course_id: "" } : {}),
     }));
   };
 
@@ -52,6 +75,18 @@ const AddStudent = () => {
   // =========================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      await studentSchema.validate(formData, { abortEarly: false, context: { isAddMode: true } });
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -114,6 +149,9 @@ const AddStudent = () => {
           submitText="Create Student"
           showPassword={true}
           onCancel={handleCancel}
+          errors={errors}
+          departments={departments}
+          courses={courses}
         />
 
       </main>

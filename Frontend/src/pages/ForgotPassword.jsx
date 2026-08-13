@@ -2,21 +2,30 @@ import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { Mail, KeyRound, ArrowLeft, CheckCircle2 } from "lucide-react";
+import forgotPasswordSchema from '../Validation/forgotPasswordSchema';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-    const [submittedEmail, setSubmittedEmail] = useState("");
+  const [submittedEmail, setSubmittedEmail] = useState("");
+  const [errors, setErrors] = useState({});
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
-    if (!email.trim()) {
-  return alert("Please enter your email.");
-}
+    try {
+      await forgotPasswordSchema.validate({ email: email.trim() }, { abortEarly: false });
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
 
     setLoading(true);
 
@@ -99,13 +108,13 @@ const ForgotPassword = () => {
                       type="email"
                       disabled={loading}
                       name="email"
-                      required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="example@email.com"
                       className="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     />
                   </div>
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
 
                   {/* Submit Button */}
                   <button

@@ -8,12 +8,14 @@ import {
   updateDepartment,
 } from "../../../services/departmentService";
 import { createDepartment } from "../../../services/departmentService";
+import departmentSchema from "../../../Validation/departmentSchema";
 
 
 const AddDepartment = () => {
 const { id } = useParams();
 
 const [loading, setLoading] = useState(false);
+const [errors, setErrors] = useState({});
 
 const [formData, setFormData] = useState({
   department_name: "",
@@ -35,6 +37,18 @@ const [formData, setFormData] = useState({
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  try {
+    await departmentSchema.validate(formData, { abortEarly: false });
+    setErrors({});
+  } catch (validationError) {
+    const newErrors = {};
+    validationError.inner.forEach((err) => {
+      newErrors[err.path] = err.message;
+    });
+    setErrors(newErrors);
+    return;
+  }
 
   try {
     setLoading(true);
@@ -130,6 +144,7 @@ const handleSubmit = async (e) => {
               loading={loading}
               submitText="Add Department"
               onCancel={() => navigate("/admin/departments")}
+              errors={errors}
             />
 
           </div>

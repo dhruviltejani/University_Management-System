@@ -40,6 +40,21 @@ export const getCourses = async (
 };
 
 // ==========================
+// GET ACTIVE COURSES (For Dropdowns)
+// ==========================
+export const getActiveCourses = async () => {
+  const response = await axios.get(API, {
+    ...getAuthConfig(),
+    params: {
+      status: "Active",
+      limit: 1000,
+    },
+  });
+
+  return response.data;
+};
+
+// ==========================
 // GET COURSE BY ID
 // ==========================
 export const getCourseById = async (id) => {

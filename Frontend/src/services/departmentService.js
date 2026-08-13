@@ -35,6 +35,21 @@ export const getDepartments = async (
 };
 
 // ==========================
+// GET ACTIVE DEPARTMENTS (For Dropdowns)
+// ==========================
+export const getActiveDepartments = async () => {
+  const response = await axios.get(API, {
+    ...getAuthConfig(),
+    params: {
+      status: "Active",
+      limit: 1000,
+    },
+  });
+
+  return response.data;
+};
+
+// ==========================
 // GET DEPARTMENT BY ID
 // ==========================
 export const getDepartmentById = async (id) => {

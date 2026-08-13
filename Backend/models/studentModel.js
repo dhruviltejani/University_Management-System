@@ -5,8 +5,8 @@ const bcrypt = require("bcrypt");
 
 const getAllStudents = async (
   search = "",
-  department = "",
-  course = "",
+  department_id = "",
+  course_id = "",
   semester = "",
   status = "",
   page = 1,
@@ -27,12 +27,12 @@ const getAllStudents = async (
 
     AND (
       $2 = ''
-      OR s.department = $2
+      OR s.department_id::text = $2
     )
 
     AND (
       $3 = ''
-      OR s.course = $3
+      OR s.course_id::text = $3
     )
 
     AND (
@@ -56,8 +56,8 @@ const getAllStudents = async (
     `,
     [
       search,
-      department,
-      course,
+      department_id,
+      course_id,
       semester,
       status,
     ]
@@ -76,8 +76,10 @@ const getAllStudents = async (
       u.dob,
 
       s.enrollment_no,
-      s.department,
-      s.course,
+      s.department_id,
+      d.department_name AS department,
+      s.course_id,
+      c.course_name AS course,
       s.semester,
       s.admission_year,
       s.father_name,
@@ -91,6 +93,10 @@ const getAllStudents = async (
 
     LEFT JOIN students s
       ON u.id = s.user_id
+    LEFT JOIN departments d
+      ON s.department_id = d.id
+    LEFT JOIN courses c
+      ON s.course_id = c.id
 
     WHERE ${whereClause}
 
@@ -101,8 +107,8 @@ const getAllStudents = async (
     `,
     [
       search,
-      department,
-      course,
+      department_id,
+      course_id,
       semester,
       status,
       limit,
@@ -129,8 +135,10 @@ const getStudentById = async (id) => {
       u.dob,
 
       s.enrollment_no,
-      s.department,
-      s.course,
+      s.department_id,
+      d.department_name AS department,
+      s.course_id,
+      c.course_name AS course,
       s.semester,
       s.admission_year,
       s.father_name,
@@ -144,6 +152,10 @@ const getStudentById = async (id) => {
 
     JOIN students s
       ON u.id = s.user_id
+    LEFT JOIN departments d
+      ON s.department_id = d.id
+    LEFT JOIN courses c
+      ON s.course_id = c.id
 
     WHERE u.id = $1
     `,
@@ -167,8 +179,8 @@ const createStudent = async (studentData) => {
       password,
 
       enrollment_no,
-      department,
-      course,
+      department_id,
+      course_id,
       semester,
       admission_year,
       father_name,
@@ -177,6 +189,18 @@ const createStudent = async (studentData) => {
       address,
       status,
     } = studentData;
+
+    // Validate semester against course's total_semesters
+    const courseRes = await client.query(
+      `SELECT total_semesters FROM courses WHERE id = $1`,
+      [course_id]
+    );
+    if (courseRes.rows.length > 0) {
+      const maxSemesters = courseRes.rows[0].total_semesters;
+      if (Number(semester) > Number(maxSemesters)) {
+        throw new Error(`Invalid semester. The selected course only has ${maxSemesters} semesters.`);
+      }
+    }
 
     // Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -215,8 +239,8 @@ const createStudent = async (studentData) => {
       (
         user_id,
         enrollment_no,
-        department,
-        course,
+        department_id,
+        course_id,
         semester,
         admission_year,
         father_name,
@@ -232,8 +256,8 @@ const createStudent = async (studentData) => {
       [
         userId,
         enrollment_no,
-        department,
-        course,
+        department_id,
+        course_id,
         semester,
         admission_year,
         father_name,
@@ -269,8 +293,8 @@ const updateStudent = async (id, data) => {
     dob,
 
     enrollment_no,
-    department,
-    course,
+    department_id,
+    course_id,
     semester,
     admission_year,
     father_name,
@@ -279,6 +303,18 @@ const updateStudent = async (id, data) => {
     address,
     status,
   } = data;
+
+  // Validate semester against course's total_semesters
+  const courseRes = await pool.query(
+    `SELECT total_semesters FROM courses WHERE id = $1`,
+    [course_id]
+  );
+  if (courseRes.rows.length > 0) {
+    const maxSemesters = courseRes.rows[0].total_semesters;
+    if (Number(semester) > Number(maxSemesters)) {
+      throw new Error(`Invalid semester. The selected course only has ${maxSemesters} semesters.`);
+    }
+  }
 
   // Update users table
   await pool.query(
@@ -306,8 +342,8 @@ const updateStudent = async (id, data) => {
     UPDATE students
     SET
       enrollment_no = $1,
-      department = $2,
-      course = $3,
+      department_id = $2,
+      course_id = $3,
       semester = $4,
       admission_year = $5,
       father_name = $6,
@@ -322,8 +358,8 @@ const updateStudent = async (id, data) => {
     `,
     [
       enrollment_no,
-      department,
-      course,
+      department_id,
+      course_id,
       semester,
       admission_year,
       father_name,
@@ -391,6 +427,7 @@ const deleteStudent = async (id) => {
 // Dashboard
 // Get student statistics
 const getStudentStats = async () => {
+  // Overall stats
   const result = await pool.query(`
     SELECT
       COUNT(*) AS total_students,
@@ -399,13 +436,15 @@ const getStudentStats = async () => {
         WHERE s.status = 'Active'
       ) AS active_students,
 
-            COUNT(*) FILTER (
+      COUNT(*) FILTER (
         WHERE s.status = 'Inactive'
       ) AS inactive_students,
 
-      COUNT(DISTINCT s.department) AS departments
+      COUNT(*) FILTER (
+        WHERE s.created_at >= NOW() - INTERVAL '7 days'
+      ) AS recent_students,
 
-      
+      COUNT(DISTINCT s.department_id) AS departments
 
     FROM students s
     JOIN users u
@@ -414,7 +453,32 @@ const getStudentStats = async () => {
     WHERE u.role = 'student'
   `);
 
-  return result.rows[0];
+  // Department Distribution
+  const deptDistResult = await pool.query(`
+    SELECT 
+      d.department_name, 
+      COUNT(s.id) as count
+    FROM students s
+    JOIN departments d ON s.department_id = d.id
+    GROUP BY d.department_name
+  `);
+
+  // Enrollment Trends (last 12 months)
+  const enrollmentTrendsResult = await pool.query(`
+    SELECT 
+      TO_CHAR(created_at, 'Mon') as month,
+      COUNT(id) as count
+    FROM students
+    WHERE created_at >= NOW() - INTERVAL '12 months'
+    GROUP BY TO_CHAR(created_at, 'Mon'), DATE_TRUNC('month', created_at)
+    ORDER BY DATE_TRUNC('month', created_at)
+  `);
+
+  const stats = result.rows[0];
+  stats.department_distribution = deptDistResult.rows;
+  stats.enrollment_trends = enrollmentTrendsResult.rows;
+
+  return stats;
 };
 
 

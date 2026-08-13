@@ -127,8 +127,8 @@ const createStudent = async (req, res) => {
       password,
 
       enrollment_no,
-      department,
-      course,
+      department_id,
+      course_id,
       semester,
       admission_year,
       father_name,
@@ -145,8 +145,8 @@ const createStudent = async (req, res) => {
       !contact_no ||
       !password ||
       !enrollment_no ||
-      !department ||
-      !course ||
+      !department_id ||
+      !course_id ||
       !semester ||
       !admission_year ||
       !father_name ||
@@ -169,8 +169,8 @@ const createStudent = async (req, res) => {
       password,
 
       enrollment_no,
-      department,
-      course,
+      department_id,
+      course_id,
       semester,
       admission_year,
       father_name,

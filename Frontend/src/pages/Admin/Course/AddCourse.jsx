@@ -1,26 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../../components/Admin/sidebar";
 import CourseForm from "../../../components/Admin/Course/CourseForm";
+import courseSchema from "../../../Validation/courseSchema";
 
 import { createCourse } from "../../../services/courseService";
+import { getActiveDepartments } from "../../../services/departmentService";
 
 const AddCourse = () => {
 
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const [departments, setDepartments] = useState([]);
 
   const [formData, setFormData] = useState({
     course_code: "",
     course_name: "",
-    department: "",
+    department_id: "",
     duration: "",
     total_semesters: "",
     description: "",
     status: "Active",
   });
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await getActiveDepartments();
+        setDepartments(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Failed to fetch departments", error);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   // =========================
   // HANDLE INPUT CHANGE
@@ -39,11 +56,21 @@ const AddCourse = () => {
   // CREATE COURSE
   // =========================
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
+      await courseSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
 
+    try {
       setLoading(true);
 
       const response = await createCourse(formData);
@@ -106,6 +133,8 @@ const AddCourse = () => {
           loading={loading}
           submitText="Create Course"
           onCancel={handleCancel}
+          errors={errors}
+          departments={departments}
         />
 
       </main>

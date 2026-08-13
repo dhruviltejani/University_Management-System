@@ -7,9 +7,13 @@ import {
   getStudentById,
   updateStudent,
 } from "../../../services/studentService";
+import { getActiveDepartments } from "../../../services/departmentService";
+import { getActiveCourses } from "../../../services/courseService";
+import studentSchema from "../../../Validation/studentSchema";
 
 const EditStudent = () => {
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -17,7 +21,9 @@ const EditStudent = () => {
     contact_no: "",
     dob: "",
     enrollment_no: "",
+    department_id: "",
     department: "",
+    course_id: "",
     course: "",
     semester: "",
     admission_year: "",
@@ -28,15 +34,48 @@ const EditStudent = () => {
     status: "",
   });
 
+  const [departments, setDepartments] = useState([]);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [deptRes, courseRes] = await Promise.all([
+          getActiveDepartments(),
+          getActiveCourses(),
+        ]);
+        setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
+        setCourses(Array.isArray(courseRes.data) ? courseRes.data : []);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
+      ...(name === "department_id" ? { course_id: "" } : {}),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      await studentSchema.validate(formData, { abortEarly: false, context: { isAddMode: false } });
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -69,7 +108,9 @@ const EditStudent = () => {
         contact_no: response.data.contact_no || "",
         dob: response.data.dob ? response.data.dob.split("T")[0] : "",
         enrollment_no: response.data.enrollment_no || "",
+        department_id: response.data.department_id || "",
         department: response.data.department || "",
+        course_id: response.data.course_id || "",
         course: response.data.course || "",
         semester: response.data.semester || "",
         admission_year: response.data.admission_year || "",
@@ -137,6 +178,9 @@ const EditStudent = () => {
               showPassword={false}
               submitText="Save Changes"
               onCancel={() => navigate("/admin/students")}
+              errors={errors}
+              departments={departments}
+              courses={courses}
             />
           </div>
 
@@ -158,7 +202,7 @@ const EditStudent = () => {
                 </p>
 
                 <span className="mt-4 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-semibold">
-                  {formData.department || "Department"}
+                  {departments.find(d => String(d.id) === String(formData.department_id))?.department_name || formData.department || "Department"}
                 </span>
               </div>
             </div>
@@ -194,7 +238,7 @@ const EditStudent = () => {
                 <div>
                   <p className="text-xs text-slate-400">Course</p>
                   <p className="font-semibold text-slate-700">
-                    {formData.course || "--"}
+                    {courses.find(c => String(c.id) === String(formData.course_id))?.course_name || formData.course || "--"}
                   </p>
                 </div>
 

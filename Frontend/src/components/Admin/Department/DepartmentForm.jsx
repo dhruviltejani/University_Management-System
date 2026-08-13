@@ -8,6 +8,7 @@ const DepartmentForm = ({
   submitText = "Save Changes",
   readOnly = false,
   onCancel,
+  errors = {},
 }) => {
 
   return (
@@ -34,9 +35,9 @@ const DepartmentForm = ({
       value={formData.department_name}
       onChange={handleChange}
       readOnly={readOnly}
-      required
       className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
     />
+    {errors.department_name && <p className="text-red-500 text-xs mt-1">{errors.department_name}</p>}
   </div>
 
   <div>
@@ -50,9 +51,10 @@ const DepartmentForm = ({
       value={formData.department_code}
       onChange={handleChange}
       readOnly={readOnly}
-      required
+
       className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
     />
+    {errors.department_code && <p className="text-red-500 text-xs mt-1">{errors.department_code}</p>}
   </div>
 
   <div>
@@ -68,6 +70,7 @@ const DepartmentForm = ({
       readOnly={readOnly}
       className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
     />
+    {errors.hod_name && <p className="text-red-500 text-xs mt-1">{errors.hod_name}</p>}
   </div>
 
   <div>
@@ -83,6 +86,7 @@ const DepartmentForm = ({
       readOnly={readOnly}
       className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
     />
+    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
   </div>
 
 </div>
@@ -121,6 +125,7 @@ const DepartmentForm = ({
                   outline-none
                   "
     />
+    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
   </div>
 
   <div>
@@ -148,6 +153,7 @@ const DepartmentForm = ({
                   outline-none
                   "
     />
+    {errors.office_location && <p className="text-red-500 text-xs mt-1">{errors.office_location}</p>}
   </div>
 
   <div className="md:col-span-2">
@@ -163,6 +169,7 @@ const DepartmentForm = ({
       rows={4}
       className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
     />
+    {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
   </div>
 
 </div>
@@ -188,7 +195,6 @@ const DepartmentForm = ({
             value={formData.status}
             onChange={handleChange}
             disabled={readOnly}
-            required
             className="
                         w-full
                         border
@@ -207,6 +213,7 @@ const DepartmentForm = ({
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
+          {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
         </div>
       </div>
 

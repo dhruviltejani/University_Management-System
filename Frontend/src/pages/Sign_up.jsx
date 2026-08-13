@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { FaGithub } from "react-icons/fa";
+import signupSchema from '../Validation/signupSchema';
 
 const Sign_up = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ const Sign_up = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleRoleChange = (selectedRole) => {
     setFormData((prev) => ({
@@ -45,7 +47,6 @@ const Sign_up = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Trim whitespace before sending
   const payload = {
     ...formData,
     full_name: formData.full_name.trim(),
@@ -53,6 +54,25 @@ const handleSubmit = async (e) => {
     contact_no: formData.contact_no.trim(),
   };
 
+  // Yup validation
+  try {
+    await signupSchema.validate(payload, { abortEarly: false });
+
+    // clear previous errors
+    setErrors({});
+  } catch (validationError) {
+    const newErrors = {};
+
+    validationError.inner.forEach((err) => {
+      newErrors[err.path] = err.message;
+    });
+
+    console.log("Validation errors:", newErrors); // debug
+    setErrors(newErrors);
+    return;
+  }
+
+  // API call
   try {
     console.log("Sending:", payload);
 
@@ -64,7 +84,12 @@ const handleSubmit = async (e) => {
     alert(response.data.message);
     navigate("/signin");
   } catch (error) {
-    console.log(error);
+    console.error("Signup API error:", error);
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
   }
 };
 
@@ -163,6 +188,12 @@ const handleSubmit = async (e) => {
                 />
               </div>
 
+              {errors.full_name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.full_name}
+                </p>
+              )}
+
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Mail size={18} />
@@ -176,6 +207,11 @@ const handleSubmit = async (e) => {
                   className="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                 />
               </div>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email}
+                </p>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="relative">
@@ -187,9 +223,16 @@ const handleSubmit = async (e) => {
                     name='dob'
                     value={formData.dob}
                     onChange={handleChange}
+                    max={new Date().toISOString().split("T")[0]}
                     className="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-600"
                   />
                 </div>
+
+                {errors.dob && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.dob}
+                  </p>
+                )}
                 
                 <div className="relative flex">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -202,13 +245,17 @@ const handleSubmit = async (e) => {
                     type="tel"
                     name='contact_no'
                     value={formData.contact_no}
-                    maxLength={10}
-                    pattern='[0-9]{10}'
                     onChange={handleChange}
                     placeholder="XXXXX XXXXX"
                     className="w-full pl-20 pr-3 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   />
                 </div>
+
+                {errors.contact_no && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.contact_no}
+                  </p>
+                )}
               </div>
 
               <div className="relative">
@@ -231,6 +278,12 @@ const handleSubmit = async (e) => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password}
+                </p>
+              )}
 
               <button
                 type="submit"
