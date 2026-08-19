@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import CourseForm from "../../../components/Admin/Course/CourseForm";
 import courseSchema from "../../../Validation/courseSchema";
 

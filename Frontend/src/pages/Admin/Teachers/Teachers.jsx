@@ -2,7 +2,7 @@ import TeacherStats from "../../../components/Admin/Teacher/TeacherStats";
 import toast from 'react-hot-toast';
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import { useState, useEffect } from "react";
 import { getTeachers , deleteTeacher} from "../../../services/teacherService";
 import { getActiveDepartments } from "../../../services/departmentService";

@@ -6,7 +6,7 @@ import { departmentDetailsConfig } from "../../../config/departmentDetailsConfig
 import { deleteDepartmentConfig } from "../../../config/deleteDepartmentConfig";
 import { DeleteModal } from "../../../components/Common/DeleteModal";
 
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import React, { useState, useEffect } from "react";
 import toast from 'react-hot-toast';
 import { getDepartments , deleteDepartment , } from "../../../services/departmentService";

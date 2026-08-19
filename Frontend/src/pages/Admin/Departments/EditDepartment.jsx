@@ -2,7 +2,7 @@ import { useState , useEffect } from "react";
 import toast from 'react-hot-toast';
 import { ArrowLeft, Save, UserCircle2 } from "lucide-react";
 import { Link , useNavigate , useParams } from "react-router-dom";
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 
 import DepartmentForm from "../../../components/Admin/Department/DepartmentForm";
 import {

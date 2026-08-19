@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 
 import StudentStats from "../../../components/Admin/Student/StudentStats";
 import toast from 'react-hot-toast';

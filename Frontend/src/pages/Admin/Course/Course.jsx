@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 
 import CourseStats from "../../../components/Admin/Course/CourseStats";
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";

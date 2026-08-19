@@ -2,7 +2,7 @@ import { useState , useEffect } from "react";
 import toast from "react-hot-toast";
 import { ArrowLeft, Save, UserCircle2 } from "lucide-react";
 import { Link , useNavigate} from "react-router-dom";
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import TeacherForm from "../../../components/Admin/Teacher/TeacherForm";
 import { createTeacher } from "../../../services/teacherService";
 import teacherSchema from "../../../Validation/teacherSchema";

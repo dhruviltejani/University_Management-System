@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import toast from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import StudentForm from "../../../components/Admin/Student/StudentForm";
 import { createStudent } from "../../../services/studentService";
 import { getActiveDepartments } from "../../../services/departmentService";

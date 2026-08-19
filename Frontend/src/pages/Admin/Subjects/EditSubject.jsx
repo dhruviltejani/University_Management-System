@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 
-import Sidebar from "../../../components/Admin/sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import SubjectForm from "../../../components/Admin/Subject/SubjectForm";
 import subjectSchema from "../../../Validation/subjectSchema";
 import { getSubjectById, updateSubject } from "../../../services/subjectService";

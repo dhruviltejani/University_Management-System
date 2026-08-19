@@ -36,7 +36,7 @@ import {
   CartesianGrid,
   Legend
 } from 'recharts';
-import Sidebar from '../../components/Admin/sidebar';
+import Sidebar from '../../components/Admin/Sidebar';
 
 const Dashboard = () => {
   const navigate = useNavigate();
