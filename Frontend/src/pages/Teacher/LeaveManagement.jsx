@@ -58,6 +58,44 @@ const LeaveManagement = () => {
     }
   };
 
+  const handleChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleBlur = async (field) => {
+    if (!formData[field] || formData[field].toString().trim() === '') {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+      return;
+    }
+
+    try {
+      await leaveSchema.validateAt(field, formData);
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: error.message
+        }));
+      }
+    }
+  };
+
   const handleApplyLeave = async (e) => {
     e.preventDefault();
     try {
@@ -277,7 +315,8 @@ const LeaveManagement = () => {
                 </label>
                 <select
                   value={formData.leave_type}
-                  onChange={(e) => setFormData({ ...formData, leave_type: e.target.value })}
+                  onChange={(e) => handleChange('leave_type', e.target.value)}
+                  onBlur={() => handleBlur('leave_type')}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                   required
                 >
@@ -296,7 +335,8 @@ const LeaveManagement = () => {
                   <input
                     type="date"
                     value={formData.start_date}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                    onChange={(e) => handleChange('start_date', e.target.value)}
+                    onBlur={() => handleBlur('start_date')}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     required
                   />
@@ -309,7 +349,8 @@ const LeaveManagement = () => {
                   <input
                     type="date"
                     value={formData.end_date}
-                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                    onChange={(e) => handleChange('end_date', e.target.value)}
+                    onBlur={() => handleBlur('end_date')}
                     min={formData.start_date}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     required
@@ -324,7 +365,8 @@ const LeaveManagement = () => {
                 </label>
                 <textarea
                   value={formData.reason}
-                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                  onChange={(e) => handleChange('reason', e.target.value)}
+                  onBlur={() => handleBlur('reason')}
                   rows="3"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
                   placeholder="Please provide a brief reason for your leave..."
