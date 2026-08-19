@@ -4,7 +4,7 @@ import { Plus, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, Trash2 } 
 import toast from "react-hot-toast";
 import TeacherSidebar from "../../components/Teacher/TeacherSidebar";
 import * as Yup from "yup";
-import { leaveSchema } from "../../validations/leaveValidation";
+import { leaveSchema } from "../../Validation/leaveSchema";
 
 const LeaveManagement = () => {
   const [leaves, setLeaves] = useState([]);

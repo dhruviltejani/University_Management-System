@@ -10,5 +10,5 @@ export const leaveSchema = Yup.object().shape({
     .min(Yup.ref('start_date'), "End date cannot be before start date"),
   reason: Yup.string()
     .required("Reason is required")
-    .min(5, "Reason is too short")
+    .min(4, "Reason is too short")
 });
