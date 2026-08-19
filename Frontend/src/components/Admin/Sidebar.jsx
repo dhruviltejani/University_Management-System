@@ -26,6 +26,10 @@ import { NavLink , useNavigate } from "react-router-dom";
 const Sidebar = () => {
   const navigate = useNavigate();
 
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const adminName = user?.full_name || "Admin User";
+
   const handleLogout = () => {
   // Remove authentication data
   localStorage.removeItem("token");
@@ -107,6 +111,20 @@ const Sidebar = () => {
             <BookOpen size={16} />
             <span>Courses</span>
           </NavLink>
+
+          <NavLink
+            to="/admin/subjects"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
+                isActive
+                  ? "bg-indigo-50 text-indigo-600 font-bold"
+                  : "text-slate-500 hover:bg-slate-50 font-medium"
+              }`
+            }
+          >
+            <BookOpen size={16} />
+            <span>Subjects</span>
+          </NavLink>
             
           <NavLink
             to="/admin/departments"
@@ -122,6 +140,20 @@ const Sidebar = () => {
             <span>Departments</span>
           </NavLink>
 
+          <NavLink
+            to="/admin/leaves"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
+                isActive
+                  ? "bg-indigo-50 text-indigo-600 font-bold"
+                  : "text-slate-500 hover:bg-slate-50 font-medium"
+              }`
+            }
+          >
+            <Calendar size={16} />
+            <span>Leave Requests</span>
+          </NavLink>
+
           </nav>
         </div>
 
@@ -131,12 +163,12 @@ const Sidebar = () => {
             {/* User Profile as Settings Option */}
             <a href="#settings" className="flex items-center gap-2.5 hover:bg-slate-50 p-2 rounded-xl transition-all flex-1 group">
               <img 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" 
-                alt="Alex Rivera" 
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=4F46E5&color=fff`} 
+                alt={adminName} 
                 className="w-8 h-8 rounded-full object-cover border border-slate-200"
               />
               <div className="flex-1">
-                <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Alex Rivera</p>
+                <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">{adminName}</p>
                 <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wide mt-0.5 flex items-center gap-1">
                    Settings
                 </p>
@@ -152,7 +184,7 @@ const Sidebar = () => {
                 <LogOut size={18} />
               </button>
               
-              {/* Tooltip */}
+            {/* Tooltip */}
               <div className="absolute -top-9 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-800 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg pointer-events-none whitespace-nowrap shadow-md z-50">
                 Logout
                 {/* Tooltip Arrow */}

@@ -23,11 +23,41 @@ const Sign_in = () => {
     setFormData((prev) => ({ ...prev, role: selectedRole }));
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    if (errors[name]) {
+      try {
+        await signinschema.validateAt(name, newFormData);
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      } catch (error) {
+        setErrors((prev) => ({ ...prev, [name]: error.message }));
+      }
+    }
+  };
+
+  const handleBlur = async (e) => {
+    const { name, value } = e.target;
+    if (!name) return;
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    try {
+      await signinschema.validateAt(name, formData);
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, [name]: error.message }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -196,7 +226,7 @@ const Sign_in = () => {
             </div>
 
             {/* Input Form */}
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit} onBlur={handleBlur}>
               
               {/* Email / University ID */}
               <div className="relative">

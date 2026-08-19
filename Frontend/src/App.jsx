@@ -20,6 +20,16 @@ import Courses from "./pages/Admin/Course/Course";
 import AddCourse from "./pages/Admin/Course/AddCourse";
 import EditCourse from "./pages/Admin/Course/EditCourse";
 
+import Subjects from "./pages/Admin/Subjects/Subjects";
+import AddSubject from "./pages/Admin/Subjects/AddSubject";
+import EditSubject from "./pages/Admin/Subjects/EditSubject";
+import AdminLeaves from "./pages/Admin/Leaves/Leaves";
+
+import TeacherDashboard from "./pages/Teacher/Dashboard";
+import TeacherClasses from "./pages/Teacher/MyClasses";
+import TeacherProfile from "./pages/Teacher/Profile";
+import LeaveManagement from "./pages/Teacher/LeaveManagement";
+
 const authLoader = () => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -55,6 +65,16 @@ const router = createBrowserRouter([
       { path: "/admin/courses", element: <Courses /> },
       { path: "/admin/courses/add", element: <AddCourse /> },
       { path: "/admin/courses/edit/:id", element: <EditCourse /> },
+      
+      { path: "/admin/subjects", element: <Subjects /> },
+      { path: "/admin/subjects/add", element: <AddSubject /> },
+      { path: "/admin/subjects/edit/:id", element: <EditSubject /> },
+      { path: "/admin/leaves", element: <AdminLeaves /> },
+      
+      { path: "/teacher/dashboard", element: <TeacherDashboard /> },
+      { path: "/teacher/classes", element: <TeacherClasses /> },
+      { path: "/teacher/profile", element: <TeacherProfile /> },
+      { path: "/teacher/leave", element: <LeaveManagement /> },
     ]
   }
 ]);

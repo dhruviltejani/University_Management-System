@@ -38,11 +38,45 @@ const Sign_up = () => {
     }));
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    if (errors[name]) {
+      try {
+        await signupSchema.validateAt(name, newFormData);
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          setErrors((prev) => ({ ...prev, [name]: error.message }));
+        }
+      }
+    }
+  };
+
+  const handleBlur = async (e) => {
+    const { name, value } = e.target;
+    if (!name) return;
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    try {
+      await signupSchema.validateAt(name, formData);
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        setErrors((prev) => ({ ...prev, [name]: error.message }));
+      }
+    }
   };
 
 const handleSubmit = async (e) => {
@@ -174,7 +208,7 @@ const handleSubmit = async (e) => {
               })}
             </div>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit} onBlur={handleBlur}>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <User size={18} />

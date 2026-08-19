@@ -54,13 +54,49 @@ const EditStudent = () => {
     fetchData();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
       ...(name === "department_id" ? { course_id: "" } : {}),
     }));
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    if (errors[name]) {
+      try {
+        const newFormData = { ...formData, [name]: value };
+        await studentSchema.validateAt(name, newFormData, { context: { isAddMode: false } });
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          setErrors((prev) => ({ ...prev, [name]: error.message }));
+        }
+      }
+    }
+  };
+
+  const handleBlur = async (e) => {
+    const { name, value } = e.target;
+    if (!name) return;
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    try {
+      await studentSchema.validateAt(name, formData, { context: { isAddMode: false } });
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        setErrors((prev) => ({ ...prev, [name]: error.message }));
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -172,6 +208,7 @@ const EditStudent = () => {
           {/* Left Side */}
           <div className="col-span-8">
             <StudentForm
+              handleBlur={handleBlur}
               formData={formData}
               handleChange={handleChange}
               handleSubmit={handleSubmit}

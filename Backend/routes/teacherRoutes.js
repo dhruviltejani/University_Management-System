@@ -9,9 +9,17 @@ const {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  getTeacherProfile,
+  getMyClasses,
 } = require("../controllers/teacherController");
 
-const {verifyToken , isAdmin} = require("../middleware/authMiddleware");
+const {verifyToken , isAdmin, isTeacher} = require("../middleware/authMiddleware");
+
+// Get logged-in teacher profile
+router.get("/me", verifyToken, isTeacher, getTeacherProfile);
+
+// Get classes assigned to logged-in teacher
+router.get("/me/classes", verifyToken, isTeacher, getMyClasses);
 
 // Statistics
 router.get("/stats", verifyToken, isAdmin, getTeacherStats);

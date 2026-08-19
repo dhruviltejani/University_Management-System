@@ -31,17 +31,51 @@ const ResetPassword = () => {
     text: "",
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
 
     if (statusMessage.text) {
       setStatusMessage({
         type: "",
         text: "",
       });
+    }
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    if (errors[name]) {
+      try {
+        await resetPasswordSchema.validateAt(name, newFormData);
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          setErrors((prev) => ({ ...prev, [name]: error.message }));
+        }
+      }
+    }
+  };
+
+  const handleBlur = async (e) => {
+    const { name, value } = e.target;
+    if (!name) return;
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    try {
+      await resetPasswordSchema.validateAt(name, formData);
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        setErrors((prev) => ({ ...prev, [name]: error.message }));
+      }
     }
   };
 
@@ -196,6 +230,7 @@ const ResetPassword = () => {
 
             <form
               onSubmit={handleSubmit}
+              onBlur={handleBlur}
               className="space-y-4"
             >
 

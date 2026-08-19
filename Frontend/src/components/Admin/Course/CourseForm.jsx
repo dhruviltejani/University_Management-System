@@ -10,10 +10,11 @@ const CourseForm = ({
   onCancel,
   errors = {},
   departments = [],
+  handleBlur,
 }) => {
 
   return (
-    <form id="course-form" onSubmit={handleSubmit} className="space-y-8">
+    <form id="course-form" onSubmit={handleSubmit} className="space-y-8" onBlur={handleBlur}>
 
       {/* Course Information */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
@@ -142,10 +143,20 @@ const CourseForm = ({
               onChange={handleChange}
               readOnly={readOnly}
               rows={5}
+              maxLength={500}
               placeholder="Enter course description..."
               className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
             />
-            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+            <div className="flex justify-between items-start mt-1">
+              {errors.description ? (
+                <p className="text-red-500 text-xs">{errors.description}</p>
+              ) : (
+                <div />
+              )}
+              <p className="text-xs text-slate-400">
+                {formData.description?.length || 0}/500
+              </p>
+            </div>
           </div>
 
         </div>

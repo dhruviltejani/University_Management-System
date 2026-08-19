@@ -253,7 +253,19 @@ const getCourseStats = async () => {
     FROM courses
   `);
 
-  return result.rows[0];
+  const deptDistResult = await pool.query(`
+    SELECT 
+      d.department_name, 
+      COUNT(c.id) as count
+    FROM courses c
+    JOIN departments d ON c.department_id = d.id
+    GROUP BY d.department_name
+  `);
+
+  const stats = result.rows[0];
+  stats.department_distribution = deptDistResult.rows;
+
+  return stats;
 };
 
 module.exports = {

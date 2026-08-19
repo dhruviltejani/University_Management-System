@@ -26,6 +26,16 @@ import {
   Info,
   SlidersHorizontal
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend
+} from 'recharts';
 import Sidebar from '../../components/Admin/sidebar';
 
 const Dashboard = () => {
@@ -39,7 +49,9 @@ const Dashboard = () => {
     recentCourses: 0,
     departments: 0,
     deptDistribution: [],
-    enrollmentTrends: []
+    enrollmentTrends: [],
+    courseDistribution: [],
+    teacherDistribution: []
   });
 
   useEffect(() => {
@@ -61,7 +73,9 @@ const Dashboard = () => {
           courses: courseRes?.data?.active_courses || 0,
           recentCourses: courseRes?.data?.recent_courses || 0,
           deptDistribution: studentRes?.data?.department_distribution || [],
-          enrollmentTrends: studentRes?.data?.enrollment_trends || []
+          enrollmentTrends: studentRes?.data?.enrollment_trends || [],
+          courseDistribution: courseRes?.data?.department_distribution || [],
+          teacherDistribution: teacherRes?.data?.department_distribution || []
         });
       } catch (error) {
         console.error("Failed to fetch dashboard stats", error);
@@ -556,6 +570,77 @@ const Dashboard = () => {
 
                 </tbody>
               </table>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Analytics Graphs: Courses and Faculty by Department */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+          
+          {/* Courses by Department */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 className="text-xs font-bold text-slate-900">Courses per Department</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Distribution of academic courses across departments
+              </p>
+            </div>
+            <div className="h-80 w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.courseDistribution} margin={{ top: 10, right: 10, left: 0, bottom: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="department_name" 
+                    tick={{ fontSize: 10, fill: '#94a3b8', angle: -45, textAnchor: 'end' }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    interval={0}
+                    height={100}
+                  />
+                  <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    itemStyle={{ color: '#0f172a', fontWeight: 'bold', fontSize: '12px' }}
+                    labelStyle={{ color: '#64748b', fontSize: '11px', marginBottom: '4px' }}
+                  />
+                  <Bar dataKey="count" name="Courses" fill="#4F46E5" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Faculty by Department */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 className="text-xs font-bold text-slate-900">Faculty per Department</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Distribution of teaching staff across departments
+              </p>
+            </div>
+            <div className="h-80 w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.teacherDistribution} margin={{ top: 10, right: 10, left: 0, bottom: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="department_name" 
+                    tick={{ fontSize: 10, fill: '#94a3b8', angle: -45, textAnchor: 'end' }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    interval={0}
+                    height={100}
+                  />
+                  <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    itemStyle={{ color: '#0f172a', fontWeight: 'bold', fontSize: '12px' }}
+                    labelStyle={{ color: '#64748b', fontSize: '11px', marginBottom: '4px' }}
+                  />
+                  <Bar dataKey="count" name="Faculty" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
