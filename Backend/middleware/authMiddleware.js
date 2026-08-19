@@ -37,7 +37,19 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+const isTeacher = (req, res, next) => {
+  if (req.user.role !== "teacher") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Teacher only.",
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   verifyToken,
   isAdmin,
+  isTeacher,
 };

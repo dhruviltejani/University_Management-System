@@ -16,7 +16,7 @@ const courseSchema = yup.object({
     .min(1, "Minimum is 1 semester")
     .max(10, "Maximum is 10 semesters")
     .required("Total semesters is required"),
-  description: yup.string().nullable(),
+  description: yup.string().max(500, "Description cannot exceed 500 characters").nullable(),
   status: yup.string().required("Status is required"),
 });
 

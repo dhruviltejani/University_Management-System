@@ -424,7 +424,19 @@ const getTeacherStats = async () => {
     WHERE u.role = 'teacher'
   `);
 
-  return result.rows[0];
+  const deptDistResult = await pool.query(`
+    SELECT 
+      d.department_name, 
+      COUNT(t.user_id) as count
+    FROM teachers t
+    JOIN departments d ON t.department_id = d.id
+    GROUP BY d.department_name
+  `);
+
+  const stats = result.rows[0];
+  stats.department_distribution = deptDistResult.rows;
+
+  return stats;
 };
 
 module.exports = {

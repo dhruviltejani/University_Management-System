@@ -43,7 +43,7 @@ const AddCourse = () => {
   // =========================
   // HANDLE INPUT CHANGE
   // =========================
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
 
     const { name, value } = e.target;
 
@@ -51,6 +51,42 @@ const AddCourse = () => {
       ...prev,
       [name]: value,
     }));
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    if (errors[name]) {
+      try {
+        const newFormData = { ...formData, [name]: value };
+        await courseSchema.validateAt(name, newFormData);
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          setErrors((prev) => ({ ...prev, [name]: error.message }));
+        }
+      }
+    }
+  };
+
+  const handleBlur = async (e) => {
+    const { name, value } = e.target;
+    if (!name) return;
+
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    try {
+      await courseSchema.validateAt(name, formData);
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        setErrors((prev) => ({ ...prev, [name]: error.message }));
+      }
+    }
   };
 
   // =========================
@@ -128,6 +164,7 @@ const AddCourse = () => {
 
         {/* Course Form */}
         <CourseForm
+          handleBlur={handleBlur}
           formData={formData}
           handleChange={handleChange}
           handleSubmit={handleSubmit}

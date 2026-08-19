@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import ModalHeader from "./ModalHeader";
 import InfoSection from "./InfoSection";
+import SectionTable from "./SectionTable";
 
 const DetailsModal = ({ isOpen, onClose, config, data }) => {
   if (!isOpen || !config || !data) return null;
@@ -45,13 +46,25 @@ const DetailsModal = ({ isOpen, onClose, config, data }) => {
             />
 
             {/* Body Sections */}
-            {sections?.map((section, idx) => (
-              <InfoSection
-                key={idx}
-                title={section.title}
-                fields={section.fields(data)}
-              />
-            ))}
+            {sections?.map((section, idx) => {
+              if (section.type === "table") {
+                return (
+                  <SectionTable
+                    key={idx}
+                    title={section.title}
+                    columns={section.columns}
+                    data={section.data(data)}
+                  />
+                );
+              }
+              return (
+                <InfoSection
+                  key={idx}
+                  title={section.title}
+                  fields={section.fields(data)}
+                />
+              );
+            })}
           </div>
         </motion.div>
       </motion.div>

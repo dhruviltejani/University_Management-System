@@ -12,6 +12,43 @@ const ForgotPassword = () => {
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errors, setErrors] = useState({});
 
+  const handleChange = async (e) => {
+    const value = e.target.value;
+    setEmail(value);
+
+    if (value === "") {
+      setErrors({});
+      return;
+    }
+
+    if (errors.email) {
+      try {
+        await forgotPasswordSchema.validateAt('email', { email: value.trim() });
+        setErrors({});
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          setErrors({ email: error.message });
+        }
+      }
+    }
+  };
+
+  const handleBlur = async (e) => {
+    const { value } = e.target;
+    if (value === "") {
+      setErrors({});
+      return;
+    }
+
+    try {
+      await forgotPasswordSchema.validateAt('email', { email: email.trim() });
+      setErrors({});
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        setErrors({ email: error.message });
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,7 +136,7 @@ const ForgotPassword = () => {
                 </div>
 
                 {/* Input Form */}
-                <form className="space-y-4" onSubmit={handleSubmit}>
+                <form className="space-y-4" onSubmit={handleSubmit} onBlur={handleBlur}>
                   {/* Email */}
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -110,7 +147,7 @@ const ForgotPassword = () => {
                       disabled={loading}
                       name="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleChange}
                       placeholder="example@email.com"
                       className="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     />

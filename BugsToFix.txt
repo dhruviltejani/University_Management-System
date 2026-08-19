@@ -1,11 +1,2 @@
-error message is not going after entering valid email
 
-must show yup error on the spot 
-
-LIMIT IN DESCRIPTION.
-
-remove joining date validation 
-
-Show how many courses comes under department 
-
-Show how many faculty  , students comes under HOD
+no validation in subjects form 

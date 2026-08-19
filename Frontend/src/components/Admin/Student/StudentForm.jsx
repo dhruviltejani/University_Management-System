@@ -13,6 +13,7 @@ const StudentForm = ({
   errors = {},
   departments = [],
   courses = [],
+  handleBlur,
 }) => {
   const filteredCourses = courses.filter(
     (c) => String(c.department_id) === String(formData.department_id)
@@ -27,7 +28,7 @@ const StudentForm = ({
   const [showPasswordText, setShowPasswordText] = useState(false);
 
   return (
-    <form id="student-form" onSubmit={handleSubmit} className="space-y-8">
+    <form id="student-form" onSubmit={handleSubmit} className="space-y-8" onBlur={handleBlur}>
       {/* Personal Information */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-800 mb-6">

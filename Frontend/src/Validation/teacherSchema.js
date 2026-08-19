@@ -47,7 +47,7 @@ const teacherSchema = yup.object({
     .min(0, "Experience cannot be negative")
     .required("Experience is required"),
   joining_date: yup.date().typeError("Invalid date format").required("Joining date is required"),
-  office_room: yup.string().nullable(),
+  office_room: yup.string().required("Office room is required"),
   status: yup.string().required("Status is required"),
 });
 

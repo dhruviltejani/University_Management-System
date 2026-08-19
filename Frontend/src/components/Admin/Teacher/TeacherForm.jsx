@@ -12,11 +12,12 @@ const TeacherForm = ({
   onCancel,
   errors = {},
   departments = [],
+  handleBlur,
 }) => {
   const [showPasswordText, setShowPasswordText] = useState(false);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8" onBlur={handleBlur}>
       {/* Personal Information */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-800 mb-6">

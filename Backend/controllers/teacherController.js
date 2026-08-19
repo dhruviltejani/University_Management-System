@@ -263,6 +263,73 @@ const deleteTeacher = async (req, res) => {
   }
 };
 
+const getTeacherProfile = async (req, res) => {
+  try {
+    const id = req.user.id; // from authMiddleware
+
+    const teacher = await Teacher.getTeacherById(id);
+
+    if (!teacher) {
+      return res.status(404).json({
+        success: false,
+        message: "Teacher profile not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: teacher,
+    });
+  } catch (error) {
+    console.error("Error fetching teacher profile:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch teacher profile.",
+      error: error.message,
+    });
+  }
+};
+
+const getMyClasses = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+    const pool = require("../db");
+
+    const result = await pool.query(
+      `
+      SELECT
+        s.id,
+        s.subject_code,
+        s.subject_name,
+        s.semester,
+        s.credits,
+        s.status,
+        c.course_name AS course
+      FROM subjects s
+      LEFT JOIN courses c ON s.course_id = c.id
+      JOIN subject_teachers st ON s.id = st.subject_id
+      JOIN teachers t ON st.teacher_id = t.id
+      WHERE t.user_id = $1
+      ORDER BY s.semester ASC, s.subject_name ASC
+      `,
+      [teacherId]
+    );
+
+    res.status(200).json({
+      success: true,
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching teacher classes:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch classes.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllTeachers,
   getTeacherById,
@@ -270,4 +337,6 @@ module.exports = {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  getTeacherProfile,
+  getMyClasses,
 };
