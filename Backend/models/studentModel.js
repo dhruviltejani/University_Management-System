@@ -9,6 +9,7 @@ const getAllStudents = async (
   course_id = "",
   semester = "",
   status = "",
+  class_id = "",
   page = 1,
   limit = 10
 ) => {
@@ -44,6 +45,12 @@ const getAllStudents = async (
       $5 = ''
       OR s.status = $5
     )
+
+    AND (
+      $6 = ''
+      OR ($6 = 'unassigned' AND s.class_id IS NULL)
+      OR ($6 != 'unassigned' AND s.class_id::text = $6)
+    )
   `;
 
   const countResult = await pool.query(
@@ -60,6 +67,7 @@ const getAllStudents = async (
       course_id,
       semester,
       status,
+      class_id,
     ]
   );
 
@@ -68,7 +76,6 @@ const getAllStudents = async (
   const result = await pool.query(
     `
     SELECT
-
       u.id,
       u.full_name,
       u.email,
@@ -80,6 +87,8 @@ const getAllStudents = async (
       d.department_name AS department,
       s.course_id,
       c.course_name AS course,
+      s.class_id,
+      cl.class_name,
       s.semester,
       s.admission_year,
       s.father_name,
@@ -97,13 +106,15 @@ const getAllStudents = async (
       ON s.department_id = d.id
     LEFT JOIN courses c
       ON s.course_id = c.id
+    LEFT JOIN classes cl
+      ON s.class_id = cl.id
 
     WHERE ${whereClause}
 
     ORDER BY u.full_name ASC
 
-    LIMIT $6
-    OFFSET $7
+    LIMIT $7
+    OFFSET $8
     `,
     [
       search,
@@ -111,6 +122,7 @@ const getAllStudents = async (
       course_id,
       semester,
       status,
+      class_id,
       limit,
       offset,
     ]
@@ -139,6 +151,8 @@ const getStudentById = async (id) => {
       d.department_name AS department,
       s.course_id,
       c.course_name AS course,
+      s.class_id,
+      cl.class_name,
       s.semester,
       s.admission_year,
       s.father_name,
@@ -156,6 +170,8 @@ const getStudentById = async (id) => {
       ON s.department_id = d.id
     LEFT JOIN courses c
       ON s.course_id = c.id
+    LEFT JOIN classes cl
+      ON s.class_id = cl.id
 
     WHERE u.id = $1
     `,
@@ -181,6 +197,7 @@ const createStudent = async (studentData) => {
       enrollment_no,
       department_id,
       course_id,
+      class_id,
       semester,
       admission_year,
       father_name,
@@ -241,6 +258,7 @@ const createStudent = async (studentData) => {
         enrollment_no,
         department_id,
         course_id,
+        class_id,
         semester,
         admission_year,
         father_name,
@@ -250,7 +268,7 @@ const createStudent = async (studentData) => {
         status
       )
       VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
       RETURNING *
       `,
       [
@@ -258,6 +276,7 @@ const createStudent = async (studentData) => {
         enrollment_no,
         department_id,
         course_id,
+        class_id || null,
         semester,
         admission_year,
         father_name,
@@ -295,6 +314,7 @@ const updateStudent = async (id, data) => {
     enrollment_no,
     department_id,
     course_id,
+    class_id,
     semester,
     admission_year,
     father_name,
@@ -344,15 +364,16 @@ const updateStudent = async (id, data) => {
       enrollment_no = $1,
       department_id = $2,
       course_id = $3,
-      semester = $4,
-      admission_year = $5,
-      father_name = $6,
-      mother_name = $7,
-      guardian_phone = $8,
-      address = $9,
-      status = $10
+      class_id = $4,
+      semester = $5,
+      admission_year = $6,
+      father_name = $7,
+      mother_name = $8,
+      guardian_phone = $9,
+      address = $10,
+      status = $11
 
-    WHERE user_id = $11
+    WHERE user_id = $12
 
     RETURNING *
     `,
@@ -360,6 +381,7 @@ const updateStudent = async (id, data) => {
       enrollment_no,
       department_id,
       course_id,
+      class_id || null,
       semester,
       admission_year,
       father_name,

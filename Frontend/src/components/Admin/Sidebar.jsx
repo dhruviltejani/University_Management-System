@@ -113,6 +113,20 @@ const Sidebar = () => {
           </NavLink>
 
           <NavLink
+            to="/admin/classes"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
+                isActive
+                  ? "bg-indigo-50 text-indigo-600 font-bold"
+                  : "text-slate-500 hover:bg-slate-50 font-medium"
+              }`
+            }
+          >
+            <BookOpen size={16} />
+            <span>Classes</span>
+          </NavLink>
+
+          <NavLink
             to="/admin/subjects"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${

@@ -20,6 +20,10 @@ import Courses from "./pages/Admin/Course/Course";
 import AddCourse from "./pages/Admin/Course/AddCourse";
 import EditCourse from "./pages/Admin/Course/EditCourse";
 
+import Classes from "./pages/Admin/Classes/Classes";
+import AddClass from "./pages/Admin/Classes/AddClass";
+import EditClass from "./pages/Admin/Classes/EditClass";
+
 import Subjects from "./pages/Admin/Subjects/Subjects";
 import AddSubject from "./pages/Admin/Subjects/AddSubject";
 import EditSubject from "./pages/Admin/Subjects/EditSubject";
@@ -65,6 +69,10 @@ const router = createBrowserRouter([
       { path: "/admin/courses", element: <Courses /> },
       { path: "/admin/courses/add", element: <AddCourse /> },
       { path: "/admin/courses/edit/:id", element: <EditCourse /> },
+      
+      { path: "/admin/classes", element: <Classes /> },
+      { path: "/admin/classes/add", element: <AddClass /> },
+      { path: "/admin/classes/edit/:id", element: <EditClass /> },
       
       { path: "/admin/subjects", element: <Subjects /> },
       { path: "/admin/subjects/add", element: <AddSubject /> },

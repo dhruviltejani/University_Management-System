@@ -21,6 +21,7 @@ export const getStudents = async (
   course = "",
   semester = "",
   status = "",
+  class_id = "",
   page = 1,
   limit = 10
 ) => {
@@ -32,6 +33,7 @@ export const getStudents = async (
       course,
       semester,
       status,
+      class_id,
       page,
       limit,
     },

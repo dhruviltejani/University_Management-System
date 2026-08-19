@@ -74,7 +74,12 @@ const getAllTeachers = async (
       t.joining_date,
       t.office_room,
       t.profile_photo,
-      t.status
+      t.status,
+      (
+        SELECT string_agg(c.class_name, ', ')
+        FROM classes c
+        WHERE c.mft_id = u.id
+      ) AS mft_classes
 
     FROM users u
 
@@ -129,7 +134,12 @@ const getTeacherById = async (id) => {
       t.joining_date,
       t.office_room,
       t.profile_photo,
-      t.status
+      t.status,
+      (
+        SELECT string_agg(c.class_name, ', ')
+        FROM classes c
+        WHERE c.mft_id = u.id
+      ) AS mft_classes
 
     FROM users u
     JOIN teachers t

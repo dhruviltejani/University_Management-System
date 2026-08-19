@@ -12,6 +12,7 @@ const getAllStudents = async (req, res) => {
       course = "",
       semester = "",
       status = "",
+      class_id = "",
       page = 1,
       limit = 10,
     } = req.query;
@@ -22,6 +23,7 @@ const getAllStudents = async (req, res) => {
       course,
       semester,
       status,
+      class_id,
       Number(page),
       Number(limit)
     );

@@ -9,7 +9,8 @@ import {
   DoorOpen,
   IdCard,
   User,
-  Transgender
+  Transgender,
+  BookOpen
 } from "lucide-react";
 
 export const teacherDetailsConfig = {
@@ -39,6 +40,7 @@ export const teacherDetailsConfig = {
         { label: "Specialization", value: data.specialization, icon: <Award size={18} /> },
         { label: "Designation", value: data.designation, icon: <Signpost size={18} /> },
         { label: "Office Room", value: data.office_room, icon: <DoorOpen size={18} /> },
+        { label: "MFT Class(es)", value: data.mft_classes || "-", icon: <BookOpen size={18} /> },
       ],
     },
   ],

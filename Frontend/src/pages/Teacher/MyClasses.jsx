@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BookOpen, Calendar, Clock, GraduationCap } from 'lucide-react';
+import { BookOpen, Calendar, Clock, GraduationCap, Users } from 'lucide-react';
 import TeacherSidebar from '../../components/Teacher/TeacherSidebar';
+import { getMyMFTClasses, getMFTClassStudents } from '../../services/classService';
 
 // Helper to format numbers like 1 -> 1st, 2 -> 2nd, etc.
 const getOrdinalNum = (n) => {
@@ -14,6 +15,7 @@ const getOrdinalNum = (n) => {
 
 const MyClasses = () => {
   const [classes, setClasses] = useState([]);
+  const [mftClasses, setMftClasses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,12 +30,31 @@ const MyClasses = () => {
         setClasses(response.data.data);
       } catch (error) {
         console.error("Failed to fetch teacher classes:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchClasses();
+    const fetchMftClasses = async () => {
+      try {
+        const mftData = await getMyMFTClasses();
+        const mftWithStudents = await Promise.all(
+          mftData.map(async (cls) => {
+            const students = await getMFTClassStudents(cls.id);
+            return { ...cls, students };
+          })
+        );
+        setMftClasses(mftWithStudents);
+      } catch (error) {
+        console.error("Failed to fetch MFT classes:", error);
+      }
+    };
+
+    const fetchAllData = async () => {
+      setLoading(true);
+      await Promise.all([fetchClasses(), fetchMftClasses()]);
+      setLoading(false);
+    };
+
+    fetchAllData();
   }, []);
 
   return (
@@ -123,6 +144,86 @@ const MyClasses = () => {
             <p className="text-slate-500 max-w-md mx-auto leading-relaxed">
               You are not currently assigned to teach any subjects for this semester. Please contact the administrator if this is an error.
             </p>
+          </div>
+        )}
+
+        {/* MFT Classes Section */}
+        {!loading && mftClasses.length > 0 && (
+          <div className="mt-12 space-y-8">
+            <div className="border-t border-slate-200 pt-10">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
+                <Users className="text-indigo-600" />
+                MFT Classes (Mentorship)
+              </h2>
+              <p className="mt-2 max-w-3xl text-slate-500 leading-7">
+                Classes where you act as the Mentoring Faculty Teacher (MFT). Below are your assigned students.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {mftClasses.map((cls) => (
+                <div key={cls.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-800">{cls.class_name}</h3>
+                      <p className="text-sm text-slate-500">{cls.course_name} • Semester {cls.semester} • Div {cls.division}</p>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 font-medium rounded-lg text-sm">
+                      <Users size={16} />
+                      {cls.students.length} Students
+                    </div>
+                  </div>
+
+                  <div className="p-0">
+                    {cls.students.length === 0 ? (
+                      <div className="p-8 text-center text-slate-500">
+                        No students are assigned to this class yet.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead className="bg-white text-xs uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-100">
+                            <tr>
+                              <th className="p-4 pl-6">Student Name</th>
+                              <th className="p-4">Enrollment No</th>
+                              <th className="p-4">Email</th>
+                              <th className="p-4">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {cls.students.map((student) => (
+                              <tr key={student.id} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="p-4 pl-6">
+                                  <div className="flex items-center gap-3">
+                                    {student.profile_photo ? (
+                                      <img src={student.profile_photo} alt={student.full_name} className="w-8 h-8 rounded-full object-cover" />
+                                    ) : (
+                                      <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                                        {student.full_name?.charAt(0)}
+                                      </div>
+                                    )}
+                                    <span className="font-medium text-slate-800 block">{student.full_name}</span>
+                                  </div>
+                                </td>
+                                <td className="p-4 text-sm text-slate-600 font-medium">{student.enrollment_no}</td>
+                                <td className="p-4 text-sm text-slate-500">{student.email}</td>
+                                <td className="p-4">
+                                  <span className={`inline-flex px-2 py-1 rounded-md text-xs font-medium ${
+                                    student.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'
+                                  }`}>
+                                    {student.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </main>

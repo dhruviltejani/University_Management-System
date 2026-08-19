@@ -1,4 +1,3 @@
-import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import ModalHeader from "./ModalHeader";
@@ -37,23 +36,25 @@ const DetailsModal = ({ isOpen, onClose, config, data }) => {
 
           <div className="flex-1 overflow-y-auto p-8 bg-gradient-to-b from-indigo-50 to-white">
             {/* Profile Header */}
-            <ModalHeader
-              title={header.title(data)}
-              subtitle={header.subtitle ? header.subtitle(data) : undefined}
-              badge={header.badge ? header.badge(data) : undefined}
-              status={header.status ? header.status(data) : undefined}
-              avatarText={header.avatarText ? header.avatarText(data) : undefined}
-            />
+            {header && (
+              <ModalHeader
+                title={header?.title ? header.title(data) : "Details"}
+                subtitle={header?.subtitle ? header.subtitle(data) : undefined}
+                badge={header?.badge ? header.badge(data) : undefined}
+                status={header?.status ? header.status(data) : undefined}
+                avatarText={header?.avatarText ? header.avatarText(data) : undefined}
+              />
+            )}
 
             {/* Body Sections */}
-            {sections?.map((section, idx) => {
+            {(sections || []).map((section, idx) => {
               if (section.type === "table") {
                 return (
                   <SectionTable
                     key={idx}
                     title={section.title}
                     columns={section.columns}
-                    data={section.data(data)}
+                    data={section.data ? section.data(data) : []}
                   />
                 );
               }
@@ -61,7 +62,7 @@ const DetailsModal = ({ isOpen, onClose, config, data }) => {
                 <InfoSection
                   key={idx}
                   title={section.title}
-                  fields={section.fields(data)}
+                  fields={section.fields ? section.fields(data) : []}
                 />
               );
             })}

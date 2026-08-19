@@ -67,6 +67,7 @@ const TeacherTable = ({ teachers = [], loading = false , page ,  setPage,  total
               <th className="px-6 py-4">Employee ID</th>
               <th className="px-6 py-4">Department</th>
               <th className="px-6 py-4">Designation</th>
+              <th className="px-6 py-4">MFT Class</th>
               <th className="px-6 py-4">Experience</th>
               <th className="px-6 py-4">Status</th>
               <th className="px-6 py-4 text-center">Actions</th>
@@ -137,6 +138,16 @@ const TeacherTable = ({ teachers = [], loading = false , page ,  setPage,  total
 
                     <td className="px-6 py-5">
                       {teacher.designation || "-"}
+                    </td>
+
+                    <td className="px-6 py-5">
+                      {teacher.mft_classes ? (
+                        <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold">
+                          {teacher.mft_classes}
+                        </span>
+                      ) : (
+                        "-"
+                      )}
                     </td>
 
                     <td className="px-6 py-5">

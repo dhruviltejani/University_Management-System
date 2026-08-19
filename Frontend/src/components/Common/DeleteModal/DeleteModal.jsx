@@ -35,7 +35,7 @@ const DeleteModal = ({
               <AlertTriangle size={38} className="text-red-600" />
             </div>
             <h2 className="mt-5 text-2xl font-bold text-slate-900">
-              {config.title}
+              {config?.title || "Delete"}
             </h2>
             <p className="mt-2 text-center text-slate-500">
               This action is permanent and cannot be undone.
@@ -48,22 +48,22 @@ const DeleteModal = ({
           {/* Profile */}
           <div className="flex items-center gap-5">
             <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-xl font-bold text-indigo-600">
-              {config.profile.avatarText(data)}
+              {config?.profile?.avatarText ? config.profile.avatarText(data) : "X"}
             </div>
             <div>
               <h3 className="text-xl font-bold text-slate-900">
-                {config.profile.title(data)}
+                {config?.profile?.title ? config.profile.title(data) : "Unknown"}
               </h3>
               <p className="text-slate-500">
-                {config.profile.subtitle(data)}
+                {config?.profile?.subtitle ? config.profile.subtitle(data) : ""}
               </p>
               <div className="mt-2 flex items-center gap-2">
-                {config.profile.badge1 && (
+                {config?.profile?.badge1 && (
                   <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-600">
                     {config.profile.badge1(data)}
                   </span>
                 )}
-                {config.profile.badge2 && (
+                {config?.profile?.badge2 && (
                   <span
                     className={`rounded-full px-3 py-1 text-sm font-medium ${
                       config.profile.badge2(data) === "Active"
@@ -81,7 +81,7 @@ const DeleteModal = ({
           {/* Info Grid */}
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <div className="grid grid-cols-2 gap-5">
-              {config.infoGrid(data).map((info, idx) => (
+              {(config?.infoGrid ? config.infoGrid(data) : []).map((info, idx) => (
                 <div key={idx}>
                   <p className="text-xs uppercase tracking-wide text-slate-400">
                     {info.label}
@@ -105,10 +105,10 @@ const DeleteModal = ({
                   Permanent Deletion
                 </h4>
                 <p className="mt-2 text-sm leading-6 text-red-600">
-                  {config.warningText}
+                  {config?.warningText || "This will be deleted permanently."}
                 </p>
                 <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-red-600">
-                  {config.warningList.map((item, idx) => (
+                  {(config?.warningList || []).map((item, idx) => (
                     <li key={idx}>{item}</li>
                   ))}
                 </ul>
@@ -133,7 +133,7 @@ const DeleteModal = ({
             disabled={loading}
             className="rounded-xl bg-red-600 px-6 py-3 font-medium text-white shadow-lg transition hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Deleting..." : config.deleteButtonText}
+            {loading ? "Deleting..." : (config?.deleteButtonText || "Delete")}
           </button>
         </div>
       </div>
