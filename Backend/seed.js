@@ -74,7 +74,7 @@ const generateRealisticData = async () => {
       for (let t = 0; t < 10; t++) {
         const isMale = Math.random() > 0.5;
         const fullName = faker.person.fullName({ sex: isMale ? 'male' : 'female' });
-
+        
         let designation = "Assistant Professor";
         if (t === 0) designation = "HOD";
         else if (t === 1) designation = "Professor";
@@ -153,7 +153,7 @@ const generateRealisticData = async () => {
           const courseTeachers = teachers.filter(t => t.courseId === courses[c].id);
           const t1 = courseTeachers[Math.floor(Math.random() * courseTeachers.length)];
           const t2 = courseTeachers[Math.floor(Math.random() * courseTeachers.length)];
-
+          
           await client.query(
             `INSERT INTO subject_teachers (subject_id, teacher_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
             [subRes.rows[0].id, t1.id]
@@ -176,17 +176,17 @@ const generateRealisticData = async () => {
         const isMale = Math.random() > 0.5;
         const fullName = faker.person.fullName({ sex: isMale ? 'male' : 'female' });
         const email = `student${studentCount}@univ.edu`;
-
+        
         const dob = faker.date.birthdate({ min: 18, max: 24 });
         const admissionYear = 2024 - Math.floor(cls.semester / 2);
-
+        
         const userRes = await client.query(
           `INSERT INTO users (full_name, email, password, role, dob, contact_no) 
            VALUES ($1, $2, $3, 'student', $4, $5) RETURNING id`,
           [fullName, email, studentHash, dob, faker.string.numeric(10)]
         );
         const userId = userRes.rows[0].id;
-
+        
         const enrollNo = `EN2024${studentCount.toString().padStart(4, '0')}`;
 
         const fatherName = faker.person.fullName({ sex: 'male', lastName: fullName.split(' ').pop() });

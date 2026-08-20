@@ -9,6 +9,7 @@ async function seedAdmin() {
       ['Admin User', 'tejanidhruvilofficial.com', hash, 'admin']
     );
     console.log('Admin user seeded successfully');
+    console.log(hash)
   } catch (error) {
     console.error('Failed to seed admin', error);
   } finally {
