@@ -182,6 +182,8 @@ const signin = async (req, res) => {
 
     res.status(500).json({
       message: "Internal Server Error",
+      error: err.message,
+      stack: err.stack,
     });
   }
 };
