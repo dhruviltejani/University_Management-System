@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { User, Mail, Phone, Calendar, BookOpen, Building2 } from "lucide-react";
+import { API_BASE_URL } from "../../config/api";
 import toast from "react-hot-toast";
 
 const TeacherProfile = () => {
@@ -14,7 +15,7 @@ const TeacherProfile = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/admin/teachers/me", {
+      const res = await axios.get(`${API_BASE_URL}/admin/teachers/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfile(res.data);

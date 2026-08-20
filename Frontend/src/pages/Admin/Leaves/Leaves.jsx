@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Sidebar from "../../../components/Admin/Sidebar";
 import DetailsModal from "../../../components/Common/DetailsModal/DetailsModal";
 import { leaveDetailsConfig } from "../../../config/leaveDetailsConfig";
+import { API_BASE_URL } from "../../../config/api";
 
 const AdminLeaves = () => {
   const [leaves, setLeaves] = useState([]);
@@ -21,7 +22,7 @@ const AdminLeaves = () => {
   const fetchLeaves = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/leaves/all", {
+      const res = await axios.get(`${API_BASE_URL}/leaves/all`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLeaves(res.data);
@@ -36,7 +37,7 @@ const AdminLeaves = () => {
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/leaves/${id}/status`, { status: newStatus }, {
+      await axios.put(`${API_BASE_URL}/leaves/${id}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Leave marked as ${newStatus}`);

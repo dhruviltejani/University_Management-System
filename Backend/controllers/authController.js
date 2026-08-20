@@ -114,8 +114,6 @@ try {
 const signin = async (req, res) => {
   try {
     const { email, password , role } = req.body;
-    console.log("Request Body:", req.body);
-    console.log("Selected Role:", role);
 
     // Check required fields
     if (!email || !password) {
@@ -137,8 +135,6 @@ const signin = async (req, res) => {
     }
 
     const user = result.rows[0];
-
-    console.log("Database Role:", user.role);
   
 
     // Compare password
@@ -157,7 +153,6 @@ const signin = async (req, res) => {
       });
     }
     
-    console.log("Generating JWT...");
     // Generate JWT
     const token = jwt.sign(
       {
@@ -190,9 +185,6 @@ const signin = async (req, res) => {
     });
   }
 };
-
-console.log("JWT generated successfully");
-console.log("Sending success response");
 
 const forgotPassword = async (req, res) => {
   try {
@@ -282,8 +274,6 @@ const resetPassword = async (req, res) => {
     }
 
     const user = result.rows[0];
-
-    console.log("Database Role:", user.role);
 
     // Check if token has expired
     if (new Date(user.reset_token_expiry) < new Date()) {

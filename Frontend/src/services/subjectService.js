@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/admin/subjects";
+import { API_BASE_URL } from "../config/api";
+
+const API_URL = `${API_BASE_URL}/admin/subjects`;
 
 export const getSubjects = async (search = "", course = "", teacher = "", status = "", page = 1, limit = 10) => {
   const token = localStorage.getItem("token");

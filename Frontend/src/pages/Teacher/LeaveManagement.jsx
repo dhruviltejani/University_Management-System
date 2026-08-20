@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config/api";
 import { Plus, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import TeacherSidebar from "../../components/Teacher/TeacherSidebar";
@@ -39,7 +40,7 @@ const LeaveManagement = () => {
   const fetchLeaves = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/leaves/my-leaves", {
+      const res = await axios.get(`${API_BASE_URL}/leaves/my-leaves`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.leaves) {
@@ -103,7 +104,7 @@ const LeaveManagement = () => {
       setErrors({});
       
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/leaves/apply", formData, {
+      await axios.post(`${API_BASE_URL}/leaves/apply`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("Leave applied successfully");
@@ -142,7 +143,7 @@ const LeaveManagement = () => {
               toast.dismiss(t.id);
               try {
                 const token = localStorage.getItem("token");
-                await axios.delete(`http://localhost:5000/api/leaves/${id}`, {
+                await axios.delete(`${API_BASE_URL}/leaves/${id}`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success("Leave deleted successfully");

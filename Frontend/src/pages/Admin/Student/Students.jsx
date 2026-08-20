@@ -90,6 +90,7 @@ const Students = () => {
         course,
         semester,
         status,
+        "", // class_id
         page,
         limit
       );

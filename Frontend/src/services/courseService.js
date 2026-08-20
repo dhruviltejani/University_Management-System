@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/admin/courses";
+import { API_BASE_URL } from "../config/api";
+
+const API = `${API_BASE_URL}/admin/courses`;
 
 // ==========================
 // AUTH HEADER

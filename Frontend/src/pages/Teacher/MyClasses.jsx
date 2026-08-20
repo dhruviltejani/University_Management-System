@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BookOpen, Calendar, Clock, GraduationCap, Users } from 'lucide-react';
 import TeacherSidebar from '../../components/Teacher/TeacherSidebar';
 import { getMyMFTClasses, getMFTClassStudents } from '../../services/classService';
+import { API_BASE_URL } from "../../config/api";
 
 // Helper to format numbers like 1 -> 1st, 2 -> 2nd, etc.
 const getOrdinalNum = (n) => {
@@ -22,7 +23,7 @@ const MyClasses = () => {
     const fetchClasses = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/admin/teachers/me/classes", {
+        const response = await axios.get(`${API_BASE_URL}/admin/teachers/me/classes`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

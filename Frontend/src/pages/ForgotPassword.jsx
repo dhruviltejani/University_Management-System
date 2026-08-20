@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { Mail, KeyRound, ArrowLeft, CheckCircle2 } from "lucide-react";
 import forgotPasswordSchema from '../Validation/forgotPasswordSchema';
 
@@ -71,8 +72,8 @@ const ForgotPassword = () => {
       console.log("Sending password reset request for:", email);
 
       const response = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
-        { email: email.trim() , }
+        `${API_BASE_URL}/auth/forgot-password`,
+        { email: email.trim() }
       );
 
       toast.success(response.data.message || "If an account with this email exists, we've sent a password reset link.");

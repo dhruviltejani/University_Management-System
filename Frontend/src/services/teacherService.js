@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/admin/teachers";
+import { API_BASE_URL } from "../config/api";
+
+const API = `${API_BASE_URL}/admin/teachers`;
 
 const getAuthConfig = () => {
   const token = localStorage.getItem("token");

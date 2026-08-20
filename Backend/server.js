@@ -13,7 +13,11 @@ const classRoutes = require("./routes/classRoutes");
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "*",
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Route registration
@@ -26,6 +30,7 @@ app.use("/api/admin/subjects", subjectRoutes);
 app.use("/api/admin/classes", classRoutes);
 app.use("/api/leaves", leaveRoutes);
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

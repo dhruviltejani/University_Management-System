@@ -120,7 +120,6 @@ const getStudentStats = async (req, res) => {
 // ==========================
 const createStudent = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
     const {
       full_name,
       email,

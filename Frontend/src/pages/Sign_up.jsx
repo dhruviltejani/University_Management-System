@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 import toast from 'react-hot-toast';
 import axios from "axios";
 import {
@@ -112,7 +113,7 @@ const handleSubmit = async (e) => {
     console.log("Sending:", payload);
 
     const response = await axios.post(
-      "http://localhost:5000/api/auth/signup",
+      `${API_BASE_URL}/auth/signup`,
       payload
     );
 
