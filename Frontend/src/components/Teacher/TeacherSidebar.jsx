@@ -86,10 +86,10 @@ const TeacherSidebar = () => {
           {/* User Profile */}
           <div 
             onClick={() => navigate("/teacher/profile")}
-            className="flex items-center gap-2.5 p-2 rounded-xl flex-1 group cursor-pointer hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2.5 p-2 rounded-xl flex-1 group cursor-pointer hover:bg-slate-50 transition-colors min-w-0"
             title="View Profile"
           >
-            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs border border-slate-200">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs border border-slate-200 shrink-0">
               {user.full_name ? user.full_name.charAt(0) : "T"}
             </div>
             <div className="flex-1 overflow-hidden">

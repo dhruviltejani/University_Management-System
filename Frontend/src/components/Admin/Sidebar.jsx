@@ -175,15 +175,15 @@ const Sidebar = () => {
         <div className="pt-4 border-t border-slate-100 mt-auto">
           <div className="flex items-center justify-between px-1">
             {/* User Profile as Settings Option */}
-            <a href="#settings" className="flex items-center gap-2.5 hover:bg-slate-50 p-2 rounded-xl transition-all flex-1 group">
+            <a href="#settings" className="flex items-center gap-2.5 hover:bg-slate-50 p-2 rounded-xl transition-all flex-1 group min-w-0">
               <img 
                 src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=4F46E5&color=fff`} 
                 alt={adminName} 
-                className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
               />
-              <div className="flex-1">
-                <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">{adminName}</p>
-                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wide mt-0.5 flex items-center gap-1">
+              <div className="flex-1 overflow-hidden">
+                <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors truncate">{adminName}</p>
+                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wide mt-0.5 flex items-center gap-1 truncate">
                    Settings
                 </p>
               </div>
