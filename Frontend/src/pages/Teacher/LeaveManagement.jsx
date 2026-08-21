@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { API_BASE_URL } from "../../config/api";
 import { Plus, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -8,9 +9,6 @@ import * as Yup from "yup";
 import { leaveSchema } from "../../Validation/leaveSchema";
 
 const LeaveManagement = () => {
-  const [leaves, setLeaves] = useState([]);
-  const [balances, setBalances] = useState({ "Casual Leave": 0, "Sick Leave": 0 });
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
@@ -19,6 +17,22 @@ const LeaveManagement = () => {
     end_date: "",
     reason: ""
   });
+
+  const fetchLeaves = async () => {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${API_BASE_URL}/leaves/my-leaves`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  };
+
+  const { data: leavesData, isLoading: loading, refetch } = useQuery({
+    queryKey: ['teacherLeaves'],
+    queryFn: fetchLeaves
+  });
+
+  const leaves = leavesData?.leaves || (Array.isArray(leavesData) ? leavesData : []);
+  const balances = leavesData?.balances || { "Casual Leave": 0, "Sick Leave": 0 };
 
   const calculateDays = () => {
     if (!formData.start_date || !formData.end_date) return 0;
@@ -32,32 +46,6 @@ const LeaveManagement = () => {
   const daysApplied = calculateDays();
 
   const leaveTypes = ["Casual Leave", "Sick Leave"]; // As per user request
-
-  useEffect(() => {
-    fetchLeaves();
-  }, []);
-
-  const fetchLeaves = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_BASE_URL}/leaves/my-leaves`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.data.leaves) {
-        setLeaves(res.data.leaves);
-        if (res.data.balances) {
-          setBalances(res.data.balances);
-        }
-      } else {
-        setLeaves(res.data);
-      }
-    } catch (error) {
-      console.error("Error fetching leaves:", error);
-      toast.error("Failed to load leaves");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -110,7 +98,7 @@ const LeaveManagement = () => {
       toast.success("Leave applied successfully");
       setShowModal(false);
       setFormData({ leave_type: "Casual Leave", start_date: "", end_date: "", reason: "" });
-      fetchLeaves();
+      await refetch();
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
@@ -147,7 +135,7 @@ const LeaveManagement = () => {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success("Leave deleted successfully");
-                fetchLeaves();
+                await refetch();
               } catch (error) {
                 console.error("Error deleting leave:", error);
                 toast.error("Failed to delete leave");

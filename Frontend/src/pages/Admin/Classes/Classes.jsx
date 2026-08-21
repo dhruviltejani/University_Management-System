@@ -8,26 +8,28 @@ import { DeleteModal } from "../../../components/Common/DeleteModal";
 import Sidebar from "../../../components/Admin/Sidebar";
 import React, { useState, useEffect } from "react";
 import toast from 'react-hot-toast';
+import { useQuery } from "@tanstack/react-query";
 import { getClasses, deleteClass } from "../../../services/classService";
 
 const Classes = () => {
-  const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
   
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [totalRecords, setTotalRecords] = useState(0);
 
-  useEffect(() => {
-    fetchClasses();
-  }, [search, courseFilter, page]);
+  const { data: classesData, isLoading, refetch } = useQuery({
+    queryKey: ['classes', search, courseFilter, page, limit],
+    queryFn: () => getClasses(search, courseFilter, page, limit)
+  });
+
+  const classes = classesData?.data || [];
+  const totalPages = classesData?.pagination?.totalPages || 1;
+  const totalRecords = classesData?.pagination?.totalRecords || 0;
 
   useEffect(() => {
     setPage(1);
@@ -36,21 +38,6 @@ const Classes = () => {
   const handleViewClass = (cls) => {
     setSelectedClass(cls);
     setShowModal(true);
-  };
-
-  const fetchClasses = async () => {
-    try {
-      setLoading(true);
-      const response = await getClasses(search, courseFilter, page, limit);
-      setClasses(response.data);
-      setTotalPages(response.pagination.totalPages);
-      setTotalRecords(response.pagination.totalRecords);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to fetch classes.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   const resetFilters = () => {
@@ -77,7 +64,7 @@ const Classes = () => {
       if (classes.length === 1 && page > 1) {
         setPage((prev) => prev - 1);
       } else {
-        await fetchClasses();
+        await refetch();
       }
     } catch (error) {
       toast.error(
@@ -115,7 +102,7 @@ const Classes = () => {
         
         <ClassTable
           classes={classes}
-          loading={loading}
+          loading={isLoading}
           page={page}
           setPage={setPage}
           totalPages={totalPages}

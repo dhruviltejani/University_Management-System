@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-
+import { useQuery } from "@tanstack/react-query";
 import Sidebar from "../../../components/Admin/Sidebar";
-
 import StudentStats from "../../../components/Admin/Student/StudentStats";
 import toast from 'react-hot-toast';
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";
@@ -10,11 +9,7 @@ import { DetailsModal } from "../../../components/Common/DetailsModal";
 import { studentDetailsConfig } from "../../../config/studentDetailsConfig";
 import { deleteStudentConfig } from "../../../config/deleteStudentConfig";
 import { DeleteModal } from "../../../components/Common/DeleteModal";
-
-import {
-  getStudents,
-  deleteStudent,
-} from "../../../services/studentService";
+import { getStudents, deleteStudent } from "../../../services/studentService";
 import { getActiveDepartments } from "../../../services/departmentService";
 import { getActiveCourses } from "../../../services/courseService";
 
@@ -23,89 +18,42 @@ const Students = () => {
   const [course, setCourse] = useState("");
   const [semester, setSemester] = useState("");
   const [status, setStatus] = useState("");
-
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
-
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-
   const [showModal, setShowModal] = useState(false);
-  const [departmentList, setDepartmentList] = useState([]);
-  const [courseList, setCourseList] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    const fetchDropdownData = async () => {
-      try {
-        const [deptRes, courseRes] = await Promise.all([
-          getActiveDepartments(),
-          getActiveCourses(),
-        ]);
-        if (deptRes.success) setDepartmentList(deptRes.data);
-        if (courseRes.success) setCourseList(courseRes.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchDropdownData();
-  }, []);
+  const { data: dropdownData = { departments: [], courses: [] } } = useQuery({
+    queryKey: ['dropdownData'],
+    queryFn: async () => {
+      const [deptRes, courseRes] = await Promise.all([
+        getActiveDepartments(),
+        getActiveCourses(),
+      ]);
+      return {
+        departments: deptRes.success ? deptRes.data : [],
+        courses: courseRes.success ? courseRes.data : [],
+      };
+    }
+  });
 
-  useEffect(() => {
-    fetchStudents();
-  }, [
-    search,
-    department,
-    course,
-    semester,
-    status,
-    page,
-    limit,
-  ]);
+  const { departments: departmentList, courses: courseList } = dropdownData;
+
+  const { data: studentsData, isLoading, refetch } = useQuery({
+    queryKey: ['students', search, department, course, semester, status, page, limit],
+    queryFn: () => getStudents(search, department, course, semester, status, "", page, limit)
+  });
+
+  const students = studentsData?.data || [];
+  const totalPages = studentsData?.pagination?.totalPages || 1;
+  const totalRecords = studentsData?.pagination?.totalRecords || 0;
 
   useEffect(() => {
     setPage(1);
-  }, [
-    search,
-    department,
-    course,
-    semester,
-    status,
-  ]);
-
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-
-      const response = await getStudents(
-        search,
-        department,
-        course,
-        semester,
-        status,
-        "", // class_id
-        page,
-        limit
-      );
-
-      setStudents(response.data);
-
-      setTotalPages(response.pagination.totalPages);
-      setTotalRecords(response.pagination.totalRecords);
-
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [search, department, course, semester, status]);
 
   const resetFilters = () => {
     setSearch("");
@@ -129,31 +77,22 @@ const Students = () => {
     if (!selectedStudent) return;
 
     try {
-      setLoading(true);
-
+      setIsDeleting(true);
       const response = await deleteStudent(selectedStudent.id);
-
       toast.success(response.message);
-
       setDeleteModalOpen(false);
       setSelectedStudent(null);
 
       if (students.length === 1 && page > 1) {
         setPage((prev) => prev - 1);
       } else {
-        await fetchStudents();
+        await refetch();
       }
-
     } catch (error) {
       console.error(error);
-
-      toast.error(
-        error.response?.data?.message ||
-        "Failed to delete student."
-      );
-
+      toast.error(error.response?.data?.message || "Failed to delete student.");
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
@@ -230,7 +169,7 @@ const Students = () => {
 
         <StudentTable
           students={students}
-          loading={loading}
+          loading={isLoading}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
@@ -242,7 +181,7 @@ const Students = () => {
           isOpen={deleteModalOpen}
           data={selectedStudent}
           config={deleteStudentConfig}
-          loading={loading}
+          loading={isDeleting}
           onCancel={() => {
             setDeleteModalOpen(false);
             setSelectedStudent(null);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import Sidebar from "../../../components/Admin/Sidebar";
 import SubjectStats from "../../../components/Admin/Subject/SubjectStats";
@@ -18,102 +19,48 @@ import subjectDetailsConfig from "../../../config/subjectDetailsConfig";
 import deleteSubjectConfig from "../../../config/deleteSubjectConfig";
 
 const Subjects = () => {
-  // =========================
-  // FILTER STATES
-  // =========================
   const [search, setSearch] = useState("");
   const [course, setCourse] = useState("");
   const [teacher, setTeacher] = useState("");
   const [status, setStatus] = useState("");
 
-  // =========================
-  // DATA STATES
-  // =========================
-  const [subjects, setSubjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // =========================
-  // PAGINATION STATES
-  // =========================
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-
-  // =========================
-  // MODAL STATES
-  // =========================
+  
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // =========================
-  // FILTER LISTS
-  // =========================
-  const [courseList, setCourseList] = useState([]);
-  const [teacherList, setTeacherList] = useState([]);
-
-  useEffect(() => {
-    const fetchFilterData = async () => {
-      try {
-        const [courseRes, teacherRes] = await Promise.all([
-          getCourses("", "", "Active", 1, 100),
-          getTeachers("", "", "", "Active", 1, 100)
-        ]);
-        if (courseRes.success || courseRes.data) {
-          setCourseList(courseRes.data || []);
-        }
-        if (teacherRes.success || teacherRes.data) {
-          setTeacherList(teacherRes.data || []);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchFilterData();
-  }, []);
-
-  // =========================
-  // FETCH SUBJECTS
-  // =========================
-  const fetchSubjects = async () => {
-    try {
-      setLoading(true);
-      const response = await getSubjects(
-        search,
-        course,
-        teacher,
-        status,
-        page,
-        limit
-      );
-      setSubjects(response.subjects || response.data || []);
-      setTotalPages(response.totalPages || (response.pagination ? response.pagination.totalPages : 1));
-      setTotalRecords(response.totalRecords || (response.pagination ? response.pagination.totalRecords : 0));
-    } catch (error) {
-      console.error("Error fetching subjects:", error);
-    } finally {
-      setLoading(false);
+  const { data: dropdownData = { courses: [], teachers: [] } } = useQuery({
+    queryKey: ['subjectDropdowns'],
+    queryFn: async () => {
+      const [courseRes, teacherRes] = await Promise.all([
+        getCourses("", "", "Active", 1, 100),
+        getTeachers("", "", "", "Active", 1, 100)
+      ]);
+      return {
+        courses: courseRes.success || courseRes.data ? courseRes.data || [] : [],
+        teachers: teacherRes.success || teacherRes.data ? teacherRes.data || [] : []
+      };
     }
-  };
+  });
 
-  // =========================
-  // LOAD SUBJECTS
-  // =========================
-  useEffect(() => {
-    fetchSubjects();
-  }, [search, course, teacher, status, page, limit]);
+  const { courses: courseList, teachers: teacherList } = dropdownData;
 
-  // =========================
-  // RESET PAGE WHEN FILTERS CHANGE
-  // =========================
+  const { data: subjectsData, isLoading, refetch } = useQuery({
+    queryKey: ['subjects', search, course, teacher, status, page, limit],
+    queryFn: () => getSubjects(search, course, teacher, status, page, limit)
+  });
+
+  const subjects = subjectsData?.subjects || subjectsData?.data || [];
+  const totalPages = subjectsData?.totalPages || (subjectsData?.pagination ? subjectsData.pagination.totalPages : 1);
+  const totalRecords = subjectsData?.totalRecords || (subjectsData?.pagination ? subjectsData.pagination.totalRecords : 0);
+
   useEffect(() => {
     setPage(1);
   }, [search, course, teacher, status]);
 
-  // =========================
-  // RESET FILTERS
-  // =========================
   const resetFilters = () => {
     setSearch("");
     setCourse("");
@@ -121,46 +68,36 @@ const Subjects = () => {
     setStatus("");
   };
 
-  // =========================
-  // VIEW SUBJECT
-  // =========================
   const handleViewSubject = (subject) => {
     setSelectedSubject(subject);
     setShowModal(true);
   };
 
-  // =========================
-  // OPEN DELETE MODAL
-  // =========================
   const openDeleteModal = (subject) => {
     setSelectedSubject(subject);
     setDeleteModalOpen(true);
   };
 
-  // =========================
-  // DELETE SUBJECT
-  // =========================
   const handleDelete = async () => {
     if (!selectedSubject) return;
 
     try {
-      setLoading(true);
+      setIsDeleting(true);
       await deleteSubject(selectedSubject.id);
       toast.success("Subject deleted successfully");
       setDeleteModalOpen(false);
       setSelectedSubject(null);
 
-      // If last item on page is deleted, move to previous page
       if (subjects.length === 1 && page > 1) {
         setPage((prev) => prev - 1);
       } else {
-        await fetchSubjects();
+        await refetch();
       }
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to delete subject.");
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
@@ -222,7 +159,7 @@ const Subjects = () => {
         {/* Subject Table */}
         <SubjectTable
           subjects={subjects}
-          loading={loading}
+          loading={isLoading}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
@@ -235,7 +172,7 @@ const Subjects = () => {
           isOpen={deleteModalOpen}
           data={selectedSubject}
           config={deleteSubjectConfig}
-          loading={loading}
+          loading={isDeleting}
           onCancel={() => {
             setDeleteModalOpen(false);
             setSelectedSubject(null);

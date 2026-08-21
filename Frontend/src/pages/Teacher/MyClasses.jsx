@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import axios from 'axios';
+import { useQuery } from "@tanstack/react-query";
 import { BookOpen, Calendar, Clock, GraduationCap, Users } from 'lucide-react';
 import TeacherSidebar from '../../components/Teacher/TeacherSidebar';
 import { getMyMFTClasses, getMFTClassStudents } from '../../services/classService';
@@ -15,48 +16,32 @@ const getOrdinalNum = (n) => {
 };
 
 const MyClasses = () => {
-  const [classes, setClasses] = useState([]);
-  const [mftClasses, setMftClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: classes = [], isLoading: classesLoading } = useQuery({
+    queryKey: ['teacherClasses'],
+    queryFn: async () => {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/admin/teachers/me/classes`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data.data || [];
+    }
+  });
 
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_BASE_URL}/admin/teachers/me/classes`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setClasses(response.data.data);
-      } catch (error) {
-        console.error("Failed to fetch teacher classes:", error);
-      }
-    };
+  const { data: mftClasses = [], isLoading: mftLoading } = useQuery({
+    queryKey: ['teacherMftClasses'],
+    queryFn: async () => {
+      const mftData = await getMyMFTClasses();
+      const mftWithStudents = await Promise.all(
+        mftData.map(async (cls) => {
+          const students = await getMFTClassStudents(cls.id);
+          return { ...cls, students };
+        })
+      );
+      return mftWithStudents;
+    }
+  });
 
-    const fetchMftClasses = async () => {
-      try {
-        const mftData = await getMyMFTClasses();
-        const mftWithStudents = await Promise.all(
-          mftData.map(async (cls) => {
-            const students = await getMFTClassStudents(cls.id);
-            return { ...cls, students };
-          })
-        );
-        setMftClasses(mftWithStudents);
-      } catch (error) {
-        console.error("Failed to fetch MFT classes:", error);
-      }
-    };
-
-    const fetchAllData = async () => {
-      setLoading(true);
-      await Promise.all([fetchClasses(), fetchMftClasses()]);
-      setLoading(false);
-    };
-
-    fetchAllData();
-  }, []);
+  const loading = classesLoading || mftLoading;
 
   return (
     <div className="h-screen overflow-hidden bg-[#F8F9FD] flex text-slate-700 font-sans">

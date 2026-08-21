@@ -4,6 +4,7 @@ import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import TeacherTable from "../../../components/Admin/Teacher/TeacherTable";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getTeachers , deleteTeacher} from "../../../services/teacherService";
 import { getActiveDepartments } from "../../../services/departmentService";
 import { DeleteModal } from "../../../components/Common/DeleteModal";
@@ -15,82 +16,38 @@ const Teachers = () => {
 const [department, setDepartment] = useState("");
 const [designation, setDesignation] = useState("");
 const [status, setStatus] = useState("");
-const [teachers, setTeachers] = useState([]);
-const [loading, setLoading] = useState(true);
 const [search, setSearch] = useState("");
 const [page, setPage] = useState(1);
 const [limit] = useState(10);
-const [totalPages, setTotalPages] = useState(1);
-const [totalRecords, setTotalRecords] = useState(0);
 const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [selectedTeacher, setSelectedTeacher] = useState(null);
 const [showModal, setShowModal] = useState(false);
-const [departmentList, setDepartmentList] = useState([]);
+const [isDeleting, setIsDeleting] = useState(false);
 
-useEffect(() => {
-  const fetchActiveDepartments = async () => {
-    try {
-      const res = await getActiveDepartments();
-      if (res.success) {
-        setDepartmentList(res.data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  fetchActiveDepartments();
-}, []);
+const { data: departmentList = [] } = useQuery({
+  queryKey: ['activeDepartments'],
+  queryFn: async () => {
+    const res = await getActiveDepartments();
+    return res.success ? res.data : [];
+  }
+});
 
-useEffect(() => {
-  // setPage(1);
-  fetchTeachers();
-}, [
-  search,
-  department,
-  designation,
-  status,
-  page,
-  limit
-]);
+const { data: teachersData, isLoading, refetch } = useQuery({
+  queryKey: ['teachers', search, department, designation, status, page, limit],
+  queryFn: () => getTeachers(search, department, designation, status, page, limit)
+});
+
+const teachers = teachersData?.data || [];
+const totalPages = teachersData?.pagination?.totalPages || 1;
+const totalRecords = teachersData?.pagination?.totalRecords || 0;
 
 useEffect(() => {
   setPage(1);
 }, [search, department, designation, status]);
 
 const handleViewTeacher = (teacher) => {
-
   setSelectedTeacher(teacher);
   setShowModal(true);
-};
-
-// const handleViewTeacher = (teacher) => {
-//   setSelectedTeacher(teacher);
-//   setShowModal(true);
-// };
-
-const fetchTeachers = async () => {
-  try {
-    setLoading(true);
-
-    const response = await getTeachers(
-      search,
-      department,
-      designation,
-      status,
-      page,
-      limit
-    );
-
-    setTeachers(response.data);
-
-    setTotalPages(response.pagination.totalPages);
-    setTotalRecords(response.pagination.totalRecords);
-
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
 };
 
 const resetFilters = () => {
@@ -105,15 +62,13 @@ const openDeleteModal = (teacher) => {
   setDeleteModalOpen(true);
 };
 
-
 const handleDelete = async () => {
   if (!selectedTeacher) return;
 
   try {
-    setLoading(true);
+    setIsDeleting(true);
 
     const response = await deleteTeacher(selectedTeacher.id);
-
     toast.success(response.message);
 
     setDeleteModalOpen(false);
@@ -122,21 +77,19 @@ const handleDelete = async () => {
     if (teachers.length === 1 && page > 1) {
       setPage((prev) => prev - 1);
     } else {
-      await fetchTeachers();
+      await refetch();
     }
 
   } catch (error) {
     console.error(error);
-
     toast.error(
       error.response?.data?.message ||
       "Failed to delete teacher."
     );
   } finally {
-    setLoading(false);
+    setIsDeleting(false);
   }
 };
-
 
   return (
     <div className="h-screen overflow-hidden bg-[#F8F9FD] flex">
@@ -204,7 +157,7 @@ const handleDelete = async () => {
         
         <TeacherTable
             teachers={teachers}
-            loading={loading}
+            loading={isLoading}
             page={page}
             setPage={setPage}
             totalPages={totalPages}
@@ -216,7 +169,7 @@ const handleDelete = async () => {
   isOpen={deleteModalOpen}
   data={selectedTeacher}
   config={deleteTeacherConfig}
-  loading={loading}
+  loading={isDeleting}
   onCancel={() => {
     setDeleteModalOpen(false);
     setSelectedTeacher(null);

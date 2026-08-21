@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, XCircle, Clock, Search, Calendar as CalendarIcon, User, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import Sidebar from "../../../components/Admin/Sidebar";
@@ -8,31 +9,23 @@ import { leaveDetailsConfig } from "../../../config/leaveDetailsConfig";
 import { API_BASE_URL } from "../../../config/api";
 
 const AdminLeaves = () => {
-  const [leaves, setLeaves] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState(null);
 
-  useEffect(() => {
-    fetchLeaves();
-  }, []);
-
   const fetchLeaves = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_BASE_URL}/leaves/all`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setLeaves(res.data);
-    } catch (error) {
-      console.error("Error fetching leaves:", error);
-      toast.error("Failed to load leaves");
-    } finally {
-      setLoading(false);
-    }
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${API_BASE_URL}/leaves/all`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
   };
+
+  const { data: leaves = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['adminLeaves'],
+    queryFn: fetchLeaves
+  });
 
   const handleUpdateStatus = async (id, newStatus) => {
     try {
@@ -41,7 +34,7 @@ const AdminLeaves = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Leave marked as ${newStatus}`);
-      fetchLeaves();
+      await refetch();
     } catch (error) {
       console.error("Error updating leave:", error);
       toast.error("Failed to update leave status");

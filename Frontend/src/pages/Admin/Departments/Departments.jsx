@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import DepartmentStats from "../../../components/Admin/Department/DepartmentStats";
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import DepartmentTable from "../../../components/Admin/Department/DepartmentTable";
@@ -5,35 +7,29 @@ import { DetailsModal } from "../../../components/Common/DetailsModal";
 import { departmentDetailsConfig } from "../../../config/departmentDetailsConfig";
 import { deleteDepartmentConfig } from "../../../config/deleteDepartmentConfig";
 import { DeleteModal } from "../../../components/Common/DeleteModal";
-
 import Sidebar from "../../../components/Admin/Sidebar";
-import React, { useState, useEffect } from "react";
 import toast from 'react-hot-toast';
-import { getDepartments , deleteDepartment , } from "../../../services/departmentService";
+import { getDepartments , deleteDepartment } from "../../../services/departmentService";
 
 const Departments = () => {
 
 const [status, setStatus] = useState("");
-const [departments, setDepartments] = useState([]);
-const [loading, setLoading] = useState(true);
 const [search, setSearch] = useState("");
 const [page, setPage] = useState(1);
 const [limit] = useState(10);
-const [totalPages, setTotalPages] = useState(1);
 const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [selectedDepartment, setSelectedDepartment] = useState(null);
 const [showModal, setShowModal] = useState(false);
 const [deleteLoading, setDeleteLoading] = useState(false);
-const [totalRecords, setTotalRecords] = useState(0);
 
-useEffect(() => {
-  // setPage(1);
-  fetchDepartments();
-}, [
-  search,
-  status,
-  page,
-]);
+const { data: departmentsData, isLoading, refetch } = useQuery({
+  queryKey: ['departments', search, status, page, limit],
+  queryFn: () => getDepartments(search, status, page, limit)
+});
+
+const departments = departmentsData?.data || [];
+const totalPages = departmentsData?.pagination?.totalPages || 1;
+const totalRecords = departmentsData?.pagination?.totalRecords || 0;
 
 useEffect(() => {
   setPage(1);
@@ -41,37 +37,8 @@ useEffect(() => {
 
 const handleViewDepartment = (department) => {
   console.log("View clicked:", department);
-
   setSelectedDepartment(department);
   setShowModal(true);
-};
-
-// const handleViewTeacher = (teacher) => {
-//   setSelectedTeacher(teacher);
-//   setShowModal(true);
-// };
-
-const fetchDepartments = async () => {
-  try {
-    setLoading(true);
-
-    const response = await getDepartments(
-      search,
-      status,
-      page,
-      limit
-    );
-
-    setDepartments(response.data);
-
-    setTotalPages(response.pagination.totalPages);
-    setTotalRecords(response.pagination.totalRecords);
-
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
 };
 
 const resetFilters = () => {
@@ -84,7 +51,6 @@ const openDeleteModal = (department) => {
   setDeleteModalOpen(true);
 };
 
-
 const handleDelete = async () => {
   if (!selectedDepartment) return;
 
@@ -92,7 +58,7 @@ const handleDelete = async () => {
     setDeleteLoading(true);
 
     console.log(selectedDepartment);
-console.log(selectedDepartment.department_id);
+    console.log(selectedDepartment.department_id);
 
     const response = await deleteDepartment(
       selectedDepartment.id
@@ -106,7 +72,7 @@ console.log(selectedDepartment.department_id);
     if (departments.length === 1 && page > 1) {
       setPage((prev) => prev - 1);
     } else {
-      await fetchDepartments();
+      await refetch();
     }
   } catch (error) {
     toast.error(
@@ -162,7 +128,7 @@ Manage university departments, HODs, office details and departmental information
         
         <DepartmentTable
             departments = {departments}
-            loading={loading}
+            loading={isLoading}
             page={page}
             setPage={setPage}
             totalPages={totalPages}

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import toast from 'react-hot-toast';
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import Sidebar from "../../../components/Admin/Sidebar";
-
 import CourseStats from "../../../components/Admin/Course/CourseStats";
 import SearchAndFilter from "../../../components/Common/SearchAndFilter";
 import CourseTable from "../../../components/Admin/Course/CourseTable";
@@ -23,174 +23,80 @@ import deleteCourseConfig from "../../../config/deleteCourseConfig";
 
 const Courses = () => {
 
-// =========================
-  // FILTER STATES
-  // =========================
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [status, setStatus] = useState("");
 
-  // =========================
-  // DATA STATES
-  // =========================
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // =========================
-  // PAGINATION STATES
-  // =========================
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-
-  // =========================
-  // MODAL STATES
-  // =========================
+  
   const [selectedCourse, setSelectedCourse] = useState(null);
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
   const [showModal, setShowModal] = useState(false);
-  const [departmentList, setDepartmentList] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    const fetchActiveDepartments = async () => {
-      try {
-        const res = await getActiveDepartments();
-        if (res.success) {
-          setDepartmentList(res.data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchActiveDepartments();
-  }, []);
-
-      // =========================
-  // FETCH COURSES
-  // =========================
-  const fetchCourses = async () => {
-
-    try {
-
-      setLoading(true);
-
-      const response = await getCourses(
-        search,
-        department,
-        status,
-        page,
-        limit
-      );
-
-      setCourses(response.data);
-
-      setTotalPages(response.pagination.totalPages);
-
-      setTotalRecords(response.pagination.totalRecords);
-
-    } catch (error) {
-
-      console.error("Error fetching courses:", error);
-
-    } finally {
-
-      setLoading(false);
+  const { data: departmentList = [] } = useQuery({
+    queryKey: ['activeDepartments'],
+    queryFn: async () => {
+      const res = await getActiveDepartments();
+      return res.success ? res.data : [];
     }
-  };
+  });
 
-  // =========================
-  // LOAD COURSES
-  // =========================
+  const { data: coursesData, isLoading, refetch } = useQuery({
+    queryKey: ['courses', search, department, status, page, limit],
+    queryFn: () => getCourses(search, department, status, page, limit)
+  });
+
+  const courses = coursesData?.data || [];
+  const totalPages = coursesData?.pagination?.totalPages || 1;
+  const totalRecords = coursesData?.pagination?.totalRecords || 0;
+
   useEffect(() => {
-
-    fetchCourses();
-
-  }, [search, department, status, page, limit]);
-
-  // =========================
-  // RESET PAGE WHEN FILTERS CHANGE
-  // =========================
-  useEffect(() => {
-
     setPage(1);
-
   }, [search, department, status]);
 
-  // =========================
-  // RESET FILTERS
-  // =========================
   const resetFilters = () => {
-
     setSearch("");
     setDepartment("");
     setStatus("");
   };
   
-    // =========================
-  // VIEW COURSE
-  // =========================
   const handleViewCourse = (course) => {
-
     setSelectedCourse(course);
-
     setShowModal(true);
   };
 
-  // =========================
-  // OPEN DELETE MODAL
-  // =========================
   const openDeleteModal = (course) => {
-
     setSelectedCourse(course);
-
     setDeleteModalOpen(true);
   };
 
-  // =========================
-  // DELETE COURSE
-  // =========================
   const handleDelete = async () => {
-
     if (!selectedCourse) return;
 
     try {
-
-      setLoading(true);
-
+      setIsDeleting(true);
       const response = await deleteCourse(selectedCourse.id);
-
       toast.success(response.message);
 
       setDeleteModalOpen(false);
-
       setSelectedCourse(null);
 
-      // If last item on page is deleted,
-      // move to previous page
       if (courses.length === 1 && page > 1) {
-
         setPage((prev) => prev - 1);
-
       } else {
-
-        await fetchCourses();
+        await refetch();
       }
 
     } catch (error) {
-
       console.error(error);
-
       toast.error(
         error.response?.data?.message ||
         "Failed to delete course."
       );
-
     } finally {
-
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
@@ -254,7 +160,7 @@ const Courses = () => {
         {/* Course Table */}
         <CourseTable
           courses={courses}
-          loading={loading}
+          loading={isLoading}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
@@ -267,7 +173,7 @@ const Courses = () => {
           isOpen={deleteModalOpen}
           data={selectedCourse}
           config={deleteCourseConfig}
-          loading={loading}
+          loading={isDeleting}
           onCancel={() => {
             setDeleteModalOpen(false);
             setSelectedCourse(null);
