@@ -10,12 +10,12 @@ import {
 
 
 const TeacherStats = () => {
-    const { data: statsData } = useQuery({
+    const { data: queryData } = useQuery({
       queryKey: ['teacherStats'],
       queryFn: getTeacherStats
     });
 
-    const stats = statsData?.data || {
+    const stats = queryData?.data || {
     total_teachers: 0,
     active_teachers: 0,
     departments: 0,

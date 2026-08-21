@@ -9,12 +9,12 @@ import {
 
 
 const DepartmentStats = () => {
-  const { data: statsData } = useQuery({
+  const { data: queryData } = useQuery({
     queryKey: ['departmentStats'],
     queryFn: getDepartmentStats
   });
 
-  const stats = statsData?.data || {
+  const stats = queryData?.data || {
     total_departments: 0,
     active_departments: 0,
     inactive_departments: 0,
