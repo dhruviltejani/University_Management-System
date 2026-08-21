@@ -13,8 +13,20 @@ const classRoutes = require("./routes/classRoutes");
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL?.replace(/\/$/, '')
+].filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "*",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
