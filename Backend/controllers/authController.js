@@ -223,18 +223,26 @@ const forgotPassword = async (req, res) => {
       [token, expiry, email]
     );
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password/${token}`;
 
-    await sendEmail(
-      email,
-      "Password Reset",
-      `
-        <h2>Password Reset Request</h2>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">${resetLink}</a>
-        <p>This link expires in 15 minutes.</p>
-      `
-    );
+    try {
+      await sendEmail(
+        email,
+        "Password Reset",
+        `
+          <h2>Password Reset Request</h2>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetLink}">${resetLink}</a>
+          <p>This link expires in 15 minutes.</p>
+        `
+      );
+    } catch (emailError) {
+      console.error("Failed to send reset email:", emailError);
+      return res.status(500).json({
+        message: "Failed to send reset email. Please try again later.",
+      });
+    }
 
     return res.status(200).json({
       message:
@@ -242,7 +250,7 @@ const forgotPassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Forgot Password Error:", error);
 
     return res.status(500).json({
       message: "Internal Server Error",
