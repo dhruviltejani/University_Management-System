@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getTeacherStats } from "../../../services/teacherService";
 import {
   UserCheck,
@@ -9,26 +10,17 @@ import {
 
 
 const TeacherStats = () => {
-    const [stats, setStats] = useState({
+    const { data: statsData } = useQuery({
+      queryKey: ['teacherStats'],
+      queryFn: getTeacherStats
+    });
+
+    const stats = statsData?.data || {
     total_teachers: 0,
     active_teachers: 0,
     departments: 0,
     on_leave: 0,
-  });
-
-  useEffect(() => {
-  const fetchStats = async () => {
-    try {
-      const response = await getTeacherStats();
-
-      setStats(response.data);
-    } catch (error) {
-      console.error("Failed to fetch teacher stats:", error);
-    }
   };
-
-  fetchStats();
-}, []);
 
 const statsData = [
   {

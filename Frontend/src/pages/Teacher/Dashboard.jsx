@@ -4,29 +4,21 @@ import { API_BASE_URL } from "../../config/api";
 import { UserCheck, Building2, Briefcase, Calendar } from 'lucide-react';
 import TeacherSidebar from '../../components/Teacher/TeacherSidebar';
 
+import { useQuery } from "@tanstack/react-query";
+
 const TeacherDashboard = () => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: profileData, isLoading: loading } = useQuery({
+    queryKey: ['teacherProfile'],
+    queryFn: async () => {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/admin/teachers/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    }
+  });
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_BASE_URL}/admin/teachers/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setProfile(response.data.data);
-      } catch (error) {
-        console.error("Failed to fetch teacher profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
+  const profile = profileData?.data || null;
 
   return (
     <div className="h-screen overflow-hidden bg-[#F8F9FD] flex text-slate-700 font-sans">      

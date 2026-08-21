@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getDepartmentStats } from "../../../services/departmentService";
 import {
   UserCheck,
@@ -8,25 +9,16 @@ import {
 
 
 const DepartmentStats = () => {
-const [stats, setStats] = useState({
-  total_departments: 0,
-  active_departments: 0,
-  inactive_departments: 0,
-});
+  const { data: statsData } = useQuery({
+    queryKey: ['departmentStats'],
+    queryFn: getDepartmentStats
+  });
 
-  useEffect(() => {
-  const fetchStats = async () => {
-    try {
-      const response = await getDepartmentStats();
-
-      setStats(response.data);
-    } catch (error) {
-      console.error("Failed to fetch department stats:", error);
-    }
+  const stats = statsData?.data || {
+    total_departments: 0,
+    active_departments: 0,
+    inactive_departments: 0,
   };
-
-  fetchStats();
-}, []);
 
 const statsData = [
   {

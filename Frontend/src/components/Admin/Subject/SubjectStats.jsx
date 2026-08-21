@@ -1,32 +1,19 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { BookOpen, CheckCircle2, XCircle, Building2 } from "lucide-react";
 import { getSubjectStats } from "../../../services/subjectService";
 
 const SubjectStats = () => {
-  const [stats, setStats] = useState({
+  const { data: statsData, isLoading: loading } = useQuery({
+    queryKey: ['subjectStats'],
+    queryFn: getSubjectStats
+  });
+
+  const stats = statsData?.data || {
     total_subjects: 0,
     active_subjects: 0,
     inactive_subjects: 0,
     total_courses: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
-      const response = await getSubjectStats();
-      setStats(response.data);
-    } catch (error) {
-      console.error("Failed to fetch subject stats:", error);
-    } finally {
-      setLoading(false);
-    }
   };
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
 
   const cards = [
     {

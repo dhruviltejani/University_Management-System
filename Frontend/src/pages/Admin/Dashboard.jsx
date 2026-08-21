@@ -37,52 +37,37 @@ import {
   Legend
 } from 'recharts';
 import Sidebar from '../../components/Admin/Sidebar';
+import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    students: 0,
-    recentStudents: 0,
-    teachers: 0,
-    recentTeachers: 0,
-    courses: 0,
-    recentCourses: 0,
-    departments: 0,
-    deptDistribution: [],
-    enrollmentTrends: [],
-    courseDistribution: [],
-    teacherDistribution: []
+
+  const { data: statsData, isLoading: loading } = useQuery({
+    queryKey: ['adminDashboardStats'],
+    queryFn: async () => {
+      const [studentRes, teacherRes, deptRes, courseRes] = await Promise.all([
+        getStudentStats(),
+        getTeacherStats(),
+        getDepartmentStats(),
+        getCourseStats()
+      ]);
+      return { studentRes, teacherRes, deptRes, courseRes };
+    }
   });
 
-  useEffect(() => {
-    const fetchDashboardStats = async () => {
-      try {
-        const [studentRes, teacherRes, deptRes, courseRes] = await Promise.all([
-          getStudentStats(),
-          getTeacherStats(),
-          getDepartmentStats(),
-          getCourseStats()
-        ]);
-
-        setStats({
-          students: studentRes?.data?.total_students || 0,
-          recentStudents: studentRes?.data?.recent_students || 0,
-          teachers: teacherRes?.data?.total_teachers || 0,
-          recentTeachers: teacherRes?.data?.recent_teachers || 0,
-          departments: deptRes?.data?.total_departments || 0,
-          courses: courseRes?.data?.active_courses || 0,
-          recentCourses: courseRes?.data?.recent_courses || 0,
-          deptDistribution: studentRes?.data?.department_distribution || [],
-          enrollmentTrends: studentRes?.data?.enrollment_trends || [],
-          courseDistribution: courseRes?.data?.department_distribution || [],
-          teacherDistribution: teacherRes?.data?.department_distribution || []
-        });
-      } catch (error) {
-        console.error("Failed to fetch dashboard stats", error);
-      }
-    };
-    fetchDashboardStats();
-  }, []);
+  const stats = {
+    students: statsData?.studentRes?.data?.total_students || 0,
+    recentStudents: statsData?.studentRes?.data?.recent_students || 0,
+    teachers: statsData?.teacherRes?.data?.total_teachers || 0,
+    recentTeachers: statsData?.teacherRes?.data?.recent_teachers || 0,
+    departments: statsData?.deptRes?.data?.total_departments || 0,
+    courses: statsData?.courseRes?.data?.active_courses || 0,
+    recentCourses: statsData?.courseRes?.data?.recent_courses || 0,
+    deptDistribution: statsData?.studentRes?.data?.department_distribution || [],
+    enrollmentTrends: statsData?.studentRes?.data?.enrollment_trends || [],
+    courseDistribution: statsData?.courseRes?.data?.department_distribution || [],
+    teacherDistribution: statsData?.teacherRes?.data?.department_distribution || []
+  };
 
   // Compute dynamic area chart paths
   const maxEnrollment = Math.max(...stats.enrollmentTrends.map(t => Number(t.count)), 10);

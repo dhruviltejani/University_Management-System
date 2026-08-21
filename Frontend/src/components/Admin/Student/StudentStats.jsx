@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Users,
   UserCheck,
@@ -9,33 +9,17 @@ import {
 import { getStudentStats } from "../../../services/studentService";
 
 const StudentStats = () => {
-  const [stats, setStats] = useState({
+  const { data: statsData, isLoading: loading } = useQuery({
+    queryKey: ['studentStats'],
+    queryFn: getStudentStats
+  });
+
+  const stats = statsData?.data || {
     total_students: 0,
     active_students: 0,
     inactive_students: 0,
     departments: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
-
-      const response = await getStudentStats();
-
-      setStats(response.data);
-
-    } catch (error) {
-      console.error("Failed to fetch student stats:", error);
-    } finally {
-      setLoading(false);
-    }
   };
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
 
   const cards = [
     {
