@@ -229,13 +229,8 @@ const forgotPassword = async (req, res) => {
     try {
       await sendEmail(
         email,
-        "Password Reset",
-        `
-          <h2>Password Reset Request</h2>
-          <p>Click the link below to reset your password:</p>
-          <a href="${resetLink}">${resetLink}</a>
-          <p>This link expires in 15 minutes.</p>
-        `
+        "Password Reset Request",
+        resetLink
       );
     } catch (emailError) {
       console.error("Failed to send reset email:", emailError);
